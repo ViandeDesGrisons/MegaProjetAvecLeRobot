@@ -69,14 +69,12 @@ int main(void)
 	proximity_start();
 	calibrate_ir();
 
-
-
     /* Infinite loop. */
     while (1) {
     	//waits 1 second
     	//chprintf((BaseSequentialStream *)&SD3, "calibration = %d \n", get_calibrated_prox(0));
 		//chprintf((BaseSequentialStream *)&SD3, "calibration = 5 \n");
-		chprintf((BaseSequentialStream *)&SD3, "calibration = %d \n", get_calibrated_prox(0));
+		chprintf((BaseSequentialStream *)&SD3, "calibration = %d \n", get_calibrated_prox(2));
         chThdSleepMilliseconds(1000);
     }
 }
