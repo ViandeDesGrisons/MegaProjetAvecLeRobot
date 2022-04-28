@@ -5,6 +5,9 @@
 *.launch
 *.cproject
 *.settings
+*.dep
+*build
+
 
 # Object files
 *.o
