@@ -27,27 +27,18 @@ static float micBack_output[FFT_SIZE];
 
 #define MIN_VALUE_THRESHOLD	10000 
 
-#define MIN_FREQ		10	//we don't analyze before this index to not use resources for nothing
-#define FREQ_FORWARD	16	//250Hz
-#define FREQ_LEFT		19	//296Hz
-#define FREQ_RIGHT		23	//359HZ
-#define FREQ_BACKWARD	26	//406Hz
-#define MAX_FREQ		30	//we don't analyze after this index to not use resources for nothing
-
-#define FREQ_FORWARD_L		(FREQ_FORWARD-1)
-#define FREQ_FORWARD_H		(FREQ_FORWARD+1)
+#define MIN_FREQ			10	//we don't analyze before this index to not use resources for nothing
+#define FREQ_LEFT			26	//406Hz
+#define MAX_FREQ			30	//we don't analyze after this index to not use resources for nothing
 #define FREQ_LEFT_L			(FREQ_LEFT-1)
 #define FREQ_LEFT_H			(FREQ_LEFT+1)
-#define FREQ_RIGHT_L		(FREQ_RIGHT-1)
-#define FREQ_RIGHT_H		(FREQ_RIGHT+1)
-#define FREQ_BACKWARD_L		(FREQ_BACKWARD-1)
-#define FREQ_BACKWARD_H		(FREQ_BACKWARD+1)
+#define PHASE_THRESHOLD		0 //à modifier
 
 /*
 *	Simple function used to detect the highest value in a buffer
 *	and to execute a motor command depending on it
 */
-void sound_remote(float* data){
+/*void sound_remote(float* data){
 	float max_norm = MIN_VALUE_THRESHOLD;
 	int16_t max_norm_index = -1; 
 
@@ -85,6 +76,66 @@ void sound_remote(float* data){
 	}
 	
 }
+*/
+
+void find_sound(float* dataLeft, float* dataLeft_cmplx, float* dataRight_cmplx, float* dataFront_cmplx, float* dataBack_cmplx){
+
+	float max_norm_Left = MIN_VALUE_THRESHOLD;
+	int16_t max_norm_index = -1;
+
+	//search for the highest peak of the Left, Right, Front and Back mic
+	for(uint16_t i = MIN_FREQ ; i <= MAX_FREQ ; i++){
+		if(dataLeft[i] > max_norm_Left){
+			max_norm_Left = dataLeft[i];
+			max_norm_index = i;
+		}
+	}
+
+	if(max_norm_index >= FREQ_LEFT_L && max_norm_index <= FREQ_LEFT_H){
+
+		//find the real and im part of each mic in order to compute the phase
+		float max_Left_real = dataLeft_cmplx[2*max_norm_index];
+		float max_Left_im = dataLeft_cmplx[2*max_norm_index + 1];
+		float max_Right_real = dataRight_cmplx[2*max_norm_index];
+		float max_Right_im = dataRight_cmplx[2*max_norm_index + 1];
+		float max_Front_real = dataFront_cmplx[2*max_norm_index];
+		float max_Front_im = dataFront_cmplx[2*max_norm_index + 1];
+		float max_Back_real = dataBack_cmplx[2*max_norm_index];
+		float max_Back_im = dataBack_cmplx[2*max_norm_index + 1];
+
+		//Compute the phase of the mics to see from where the sound is coming
+		float Left_Phase = atan2(max_Left_im, max_Left_real);
+		float Right_Phase = atan2(max_Right_im, max_Right_real);
+		float Front_Phase = atan2(max_Front_im, max_Front_real);
+		float Back_Phase = atan2(max_Back_im, max_Back_real);
+
+		//if the sound is coming from the left, turn right
+		if(Left_Phase < Right_Phase - PHASE_THRESHOLD){
+			left_motor_set_speed(600);
+			right_motor_set_speed(-600);
+		}
+
+		//if the sound is coming from the right, turn left
+		if(Right_Phase < Left_Phase - PHASE_THRESHOLD){
+			left_motor_set_speed(-600);
+			right_motor_set_speed(600);
+		}
+
+		//if the robot is centered, go frontward or backward depending from where the sound is coming
+		if(abs(Right_Phase - Left_Phase) <= PHASE_THRESHOLD){
+			if(Front_Phase < Back_Phase - PHASE_THRESHOLD){
+				left_motor_set_speed(-600);
+				right_motor_set_speed(-600);
+			}
+
+			if(Back_Phase < Front_Phase - PHASE_THRESHOLD){
+				left_motor_set_speed(600);
+				right_motor_set_speed(600);
+			}
+		}
+	}
+}
+
 
 /*
 *	Callback called when the demodulation of the four microphones is done.
@@ -165,7 +216,8 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 		nb_samples = 0;
 		mustSend++;
 
-		sound_remote(micLeft_output);
+		//sound_remote(micLeft_output);
+		find_sound(micLeft_output, micLeft_cmplx_input, micRight_cmplx_input, micFront_cmplx_input, micBack_cmplx_input);
 	}
 }
 
