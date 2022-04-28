@@ -32,7 +32,7 @@ static float micBack_output[FFT_SIZE];
 #define MAX_FREQ			30	//we don't analyze after this index to not use resources for nothing
 #define FREQ_LEFT_L			(FREQ_LEFT-1)
 #define FREQ_LEFT_H			(FREQ_LEFT+1)
-#define PHASE_THRESHOLD		0 //à modifier
+#define PHASE_THRESHOLD		0.3 //à modifier
 
 /*
 *	Simple function used to detect the highest value in a buffer
@@ -78,36 +78,56 @@ static float micBack_output[FFT_SIZE];
 }
 */
 
-void find_sound(float* dataLeft, float* dataLeft_cmplx, float* dataRight_cmplx, float* dataFront_cmplx, float* dataBack_cmplx){
+void find_sound(float* dataLeft,float* dataRight, float* dataFront, float* dataBack, float* dataLeft_cmplx, float* dataRight_cmplx, float* dataFront_cmplx, float* dataBack_cmplx){
 
 	float max_norm_Left = MIN_VALUE_THRESHOLD;
-	int16_t max_norm_index = -1;
+	int16_t max_norm_index_Left = -1;
+	float max_norm_Right = MIN_VALUE_THRESHOLD;
+	int16_t max_norm_index_Right = -1;
+	float max_norm_Front = MIN_VALUE_THRESHOLD;
+	int16_t max_norm_index_Front = -1;
+	float max_norm_Back = MIN_VALUE_THRESHOLD;
+	int16_t max_norm_index_Back = -1;
 
 	//search for the highest peak of the Left, Right, Front and Back mic
 	for(uint16_t i = MIN_FREQ ; i <= MAX_FREQ ; i++){
 		if(dataLeft[i] > max_norm_Left){
 			max_norm_Left = dataLeft[i];
-			max_norm_index = i;
+			max_norm_index_Left = i;
+		}
+		if(dataRight[i] > max_norm_Right){
+			max_norm_Right = dataRight[i];
+			max_norm_index_Right = i;
+		}
+		if(dataFront[i] > max_norm_Front){
+			max_norm_Front = dataFront[i];
+			max_norm_index_Front = i;
+		}
+		if(dataBack[i] > max_norm_Back){
+			max_norm_Back = dataBack[i];
+			max_norm_index_Back = i;
 		}
 	}
 
-	if(max_norm_index >= FREQ_LEFT_L && max_norm_index <= FREQ_LEFT_H){
+	if(max_norm_index_Left >= FREQ_LEFT_L && max_norm_index_Left <= FREQ_LEFT_H){
 
 		//find the real and im part of each mic in order to compute the phase
-		float max_Left_real = dataLeft_cmplx[2*max_norm_index];
-		float max_Left_im = dataLeft_cmplx[2*max_norm_index + 1];
-		float max_Right_real = dataRight_cmplx[2*max_norm_index];
-		float max_Right_im = dataRight_cmplx[2*max_norm_index + 1];
-		float max_Front_real = dataFront_cmplx[2*max_norm_index];
-		float max_Front_im = dataFront_cmplx[2*max_norm_index + 1];
-		float max_Back_real = dataBack_cmplx[2*max_norm_index];
-		float max_Back_im = dataBack_cmplx[2*max_norm_index + 1];
+		float max_Left_real = dataLeft_cmplx[2*max_norm_index_Left];
+		float max_Left_im = dataLeft_cmplx[2*max_norm_index_Left + 1];
+		float max_Right_real = dataRight_cmplx[2*max_norm_index_Right];
+		float max_Right_im = dataRight_cmplx[2*max_norm_index_Right + 1];
+		float max_Front_real = dataFront_cmplx[2*max_norm_index_Front];
+		float max_Front_im = dataFront_cmplx[2*max_norm_index_Front + 1];
+		float max_Back_real = dataBack_cmplx[2*max_norm_index_Back];
+		float max_Back_im = dataBack_cmplx[2*max_norm_index_Back + 1];
 
 		//Compute the phase of the mics to see from where the sound is coming
 		float Left_Phase = atan2(max_Left_im, max_Left_real);
 		float Right_Phase = atan2(max_Right_im, max_Right_real);
 		float Front_Phase = atan2(max_Front_im, max_Front_real);
 		float Back_Phase = atan2(max_Back_im, max_Back_real);
+		float phase_diff = Left_Phase - Right_Phase;
+		chprintf((BaseSequentialStream *)&SD3, "phase_diff: %f \n", phase_diff);
 
 		//if the sound is coming from the left, turn right
 		if(Left_Phase < Right_Phase - PHASE_THRESHOLD){
@@ -122,7 +142,7 @@ void find_sound(float* dataLeft, float* dataLeft_cmplx, float* dataRight_cmplx, 
 		}
 
 		//if the robot is centered, go frontward or backward depending from where the sound is coming
-		if(abs(Right_Phase - Left_Phase) <= PHASE_THRESHOLD){
+		if(fabs(Right_Phase - Left_Phase) <= PHASE_THRESHOLD){
 			if(Front_Phase < Back_Phase - PHASE_THRESHOLD){
 				left_motor_set_speed(600);
 				right_motor_set_speed(600);
@@ -220,7 +240,7 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 		mustSend++;
 
 		//sound_remote(micLeft_output);
-		find_sound(micLeft_output, micLeft_cmplx_input, micRight_cmplx_input, micFront_cmplx_input, micBack_cmplx_input);
+		find_sound(micLeft_output, micRight_output, micFront_output, micBack_output, micLeft_cmplx_input, micRight_cmplx_input, micFront_cmplx_input, micBack_cmplx_input);
 	}
 }
 
