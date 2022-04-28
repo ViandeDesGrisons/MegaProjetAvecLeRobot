@@ -124,15 +124,18 @@ void find_sound(float* dataLeft, float* dataLeft_cmplx, float* dataRight_cmplx, 
 		//if the robot is centered, go frontward or backward depending from where the sound is coming
 		if(abs(Right_Phase - Left_Phase) <= PHASE_THRESHOLD){
 			if(Front_Phase < Back_Phase - PHASE_THRESHOLD){
-				left_motor_set_speed(-600);
-				right_motor_set_speed(-600);
-			}
-
-			if(Back_Phase < Front_Phase - PHASE_THRESHOLD){
 				left_motor_set_speed(600);
 				right_motor_set_speed(600);
 			}
+
+			if(Back_Phase < Front_Phase - PHASE_THRESHOLD){
+				left_motor_set_speed(-600);
+				right_motor_set_speed(-600);
+			}
 		}
+	}else{
+		left_motor_set_speed(0);
+		right_motor_set_speed(0);
 	}
 }
 
