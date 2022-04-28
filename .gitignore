@@ -4,7 +4,7 @@
 *.project
 *.launch
 *.cproject
-*.settings/*
+*.settings
 
 # Object files
 *.o
