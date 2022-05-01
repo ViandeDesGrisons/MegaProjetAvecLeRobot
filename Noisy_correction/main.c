@@ -11,7 +11,6 @@
 #include <motors.h>
 #include <camera/po8030.h>
 #include <chprintf.h>
-#include <sensors/proximity.h>
 #include <i2c_bus.h>
 #include <msgbus/messagebus.h>
 //#include <pi_regulator.h>
@@ -21,11 +20,11 @@ messagebus_t bus;
 MUTEX_DECL(bus_lock);
 CONDVAR_DECL(bus_condvar);
 
-void SendUint8ToComputer(uint8_t* data, uint16_t size)
+void delay(unsigned int n)
 {
-	chSequentialStreamWrite((BaseSequentialStream *)&SD3, (uint8_t*)"START", 5);
-	chSequentialStreamWrite((BaseSequentialStream *)&SD3, (uint8_t*)&size, sizeof(uint16_t));
-	chSequentialStreamWrite((BaseSequentialStream *)&SD3, (uint8_t*)data, size);
+    while (n--) {
+        __asm__ volatile ("nop");
+    }
 }
 
 static void serial_start(void)
@@ -61,7 +60,6 @@ int main(void)
 //	pi_regulator_start();
 //	process_image_start();
 
-
 	messagebus_init(&bus, &bus_lock, &bus_condvar);
 
 	//mettre genre sleep de 1000ms pour être sûr
@@ -69,13 +67,21 @@ int main(void)
 	proximity_start();
 	calibrate_ir();
 
+//    // Enable GPIOB and GPIOD peripheral clock for the LEDs
+//    RCC->AHB1ENR    |= RCC_AHB1ENR_GPIOBEN | RCC_AHB1ENR_GPIODEN;
+//
+//    // FRONT_LED defined in main.h
+//    gpio_config_output_opendrain(FRONT_LED);
+
     /* Infinite loop. */
     while (1) {
-    	//waits 1 second
-    	//chprintf((BaseSequentialStream *)&SD3, "calibration = %d \n", get_calibrated_prox(0));
-		//chprintf((BaseSequentialStream *)&SD3, "calibration = 5 \n");
-		chprintf((BaseSequentialStream *)&SD3, "calibration = %d \n", get_calibrated_prox(2));
-        chThdSleepMilliseconds(1000);
+//    	delay(SystemCoreClock/16);
+//    	gpio_toggle(FRONT_LED);
+//    		chprintf((BaseSequentialStream *)&SD3, "calibration = %d \n", get_calibrated_prox(0));
+    	controle_LED_MOTOR();
+
     }
+
+//        chThdSleepMilliseconds(1000);
 }
 

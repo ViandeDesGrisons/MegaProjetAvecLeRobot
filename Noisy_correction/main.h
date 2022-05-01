@@ -9,6 +9,7 @@ extern "C" {
 #include "msgbus/messagebus.h"
 #include "parameter/parameter.h"
 
+//#define FRONT_LED	GPIOD, 14
 
 /** Robot wide IPC bus. */
 extern messagebus_t bus;

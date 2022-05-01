@@ -1,8 +1,0 @@
-#ifndef CAPTEUR_PROXIMITE_H_
-#define CAPTEUR_PROXIMITE_H_
-
-
-
-
-
-#endif /* CAPTEUR_PROXIMITE_H_ */
