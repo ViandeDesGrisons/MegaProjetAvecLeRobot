@@ -3,7 +3,7 @@
 #include <main.h>
 #include <usbcfg.h>
 #include <chprintf.h>
-
+#include <leds.h>
 #include <motors.h>
 #include <audio/microphone.h>
 #include <audio_processing.h>
@@ -34,92 +34,30 @@ static float micBack_output[FFT_SIZE];
 #define FREQ_LEFT_H			(FREQ_LEFT+1)
 #define PHASE_THRESHOLD		0.3 //à modifier
 
-/*
-*	Simple function used to detect the highest value in a buffer
-*	and to execute a motor command depending on it
-*/
-/*void sound_remote(float* data){
-	float max_norm = MIN_VALUE_THRESHOLD;
-	int16_t max_norm_index = -1; 
+void find_sound(float* dataLeft, float* dataLeft_cmplx, float* dataRight_cmplx, float* dataFront_cmplx, float* dataBack_cmplx){
 
-	//search for the highest peak
+	float max_norm = MIN_VALUE_THRESHOLD;
+	int16_t max_norm_index = -1;
+
+	//search for the highest peak of the Left, Right, Front and Back mic
 	for(uint16_t i = MIN_FREQ ; i <= MAX_FREQ ; i++){
-		if(data[i] > max_norm){
-			max_norm = data[i];
+		if(dataLeft[i] > max_norm){
+			max_norm = dataLeft[i];
 			max_norm_index = i;
 		}
 	}
 
-	//go forward
-	if(max_norm_index >= FREQ_FORWARD_L && max_norm_index <= FREQ_FORWARD_H){
-		left_motor_set_speed(600);
-		right_motor_set_speed(600);
-	}
-	//turn left
-	else if(max_norm_index >= FREQ_LEFT_L && max_norm_index <= FREQ_LEFT_H){
-		left_motor_set_speed(-600);
-		right_motor_set_speed(600);
-	}
-	//turn right
-	else if(max_norm_index >= FREQ_RIGHT_L && max_norm_index <= FREQ_RIGHT_H){
-		left_motor_set_speed(600);
-		right_motor_set_speed(-600);
-	}
-	//go backward
-	else if(max_norm_index >= FREQ_BACKWARD_L && max_norm_index <= FREQ_BACKWARD_H){
-		left_motor_set_speed(-600);
-		right_motor_set_speed(-600);
-	}
-	else{
-		left_motor_set_speed(0);
-		right_motor_set_speed(0);
-	}
-	
-}
-*/
-
-void find_sound(float* dataLeft,float* dataRight, float* dataFront, float* dataBack, float* dataLeft_cmplx, float* dataRight_cmplx, float* dataFront_cmplx, float* dataBack_cmplx){
-
-	float max_norm_Left = MIN_VALUE_THRESHOLD;
-	int16_t max_norm_index_Left = -1;
-	float max_norm_Right = MIN_VALUE_THRESHOLD;
-	int16_t max_norm_index_Right = -1;
-	float max_norm_Front = MIN_VALUE_THRESHOLD;
-	int16_t max_norm_index_Front = -1;
-	float max_norm_Back = MIN_VALUE_THRESHOLD;
-	int16_t max_norm_index_Back = -1;
-
-	//search for the highest peak of the Left, Right, Front and Back mic
-	for(uint16_t i = MIN_FREQ ; i <= MAX_FREQ ; i++){
-		if(dataLeft[i] > max_norm_Left){
-			max_norm_Left = dataLeft[i];
-			max_norm_index_Left = i;
-		}
-		if(dataRight[i] > max_norm_Right){
-			max_norm_Right = dataRight[i];
-			max_norm_index_Right = i;
-		}
-		if(dataFront[i] > max_norm_Front){
-			max_norm_Front = dataFront[i];
-			max_norm_index_Front = i;
-		}
-		if(dataBack[i] > max_norm_Back){
-			max_norm_Back = dataBack[i];
-			max_norm_index_Back = i;
-		}
-	}
-
-	if(max_norm_index_Left >= FREQ_LEFT_L && max_norm_index_Left <= FREQ_LEFT_H){
+	if(max_norm_index >= FREQ_LEFT_L && max_norm_index <= FREQ_LEFT_H){
 
 		//find the real and im part of each mic in order to compute the phase
-		float max_Left_real = dataLeft_cmplx[2*max_norm_index_Left];
-		float max_Left_im = dataLeft_cmplx[2*max_norm_index_Left + 1];
-		float max_Right_real = dataRight_cmplx[2*max_norm_index_Right];
-		float max_Right_im = dataRight_cmplx[2*max_norm_index_Right + 1];
-		float max_Front_real = dataFront_cmplx[2*max_norm_index_Front];
-		float max_Front_im = dataFront_cmplx[2*max_norm_index_Front + 1];
-		float max_Back_real = dataBack_cmplx[2*max_norm_index_Back];
-		float max_Back_im = dataBack_cmplx[2*max_norm_index_Back + 1];
+		float max_Left_real = dataLeft_cmplx[2*max_norm_index];
+		float max_Left_im = dataLeft_cmplx[2*max_norm_index + 1];
+		float max_Right_real = dataRight_cmplx[2*max_norm_index];
+		float max_Right_im = dataRight_cmplx[2*max_norm_index + 1];
+		float max_Front_real = dataFront_cmplx[2*max_norm_index];
+		float max_Front_im = dataFront_cmplx[2*max_norm_index + 1];
+		float max_Back_real = dataBack_cmplx[2*max_norm_index];
+		float max_Back_im = dataBack_cmplx[2*max_norm_index + 1];
 
 		//Compute the phase of the mics to see from where the sound is coming
 		float Left_Phase = atan2(max_Left_im, max_Left_real);
@@ -133,12 +71,14 @@ void find_sound(float* dataLeft,float* dataRight, float* dataFront, float* dataB
 		if(Left_Phase < Right_Phase - PHASE_THRESHOLD){
 			left_motor_set_speed(600);
 			right_motor_set_speed(-600);
+			set_body_led(1);
 		}
 
 		//if the sound is coming from the right, turn left
 		if(Right_Phase < Left_Phase - PHASE_THRESHOLD){
 			left_motor_set_speed(-600);
 			right_motor_set_speed(600);
+			set_body_led(1);
 		}
 
 		//if the robot is centered, go frontward or backward depending from where the sound is coming
@@ -146,16 +86,19 @@ void find_sound(float* dataLeft,float* dataRight, float* dataFront, float* dataB
 			if(Front_Phase < Back_Phase - PHASE_THRESHOLD){
 				left_motor_set_speed(600);
 				right_motor_set_speed(600);
+				set_body_led(1);
 			}
 
 			if(Back_Phase < Front_Phase - PHASE_THRESHOLD){
 				left_motor_set_speed(-600);
 				right_motor_set_speed(-600);
+				set_body_led(1);
 			}
 		}
 	}else{
 		left_motor_set_speed(0);
 		right_motor_set_speed(0);
+		set_body_led(0);
 	}
 }
 
@@ -240,7 +183,7 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 		mustSend++;
 
 		//sound_remote(micLeft_output);
-		find_sound(micLeft_output, micRight_output, micFront_output, micBack_output, micLeft_cmplx_input, micRight_cmplx_input, micFront_cmplx_input, micBack_cmplx_input);
+		find_sound(micLeft_output, micLeft_cmplx_input, micRight_cmplx_input, micFront_cmplx_input, micBack_cmplx_input);
 	}
 }
 
