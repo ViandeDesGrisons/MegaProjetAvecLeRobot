@@ -11,8 +11,12 @@
 #include <motors.h>
 #include <camera/po8030.h>
 #include <chprintf.h>
+#include <control_proximity.h>
 #include <i2c_bus.h>
 #include <msgbus/messagebus.h>
+
+#define STACK_CHK_GUARD 0xe2dee396
+
 //#include <pi_regulator.h>
 //#include <process_image.h>
 
@@ -20,12 +24,19 @@ messagebus_t bus;
 MUTEX_DECL(bus_lock);
 CONDVAR_DECL(bus_condvar);
 
-void delay(unsigned int n)
+uintptr_t __stack_chk_guard = STACK_CHK_GUARD;
+
+void __stack_chk_fail(void)
 {
-    while (n--) {
-        __asm__ volatile ("nop");
-    }
+    chSysHalt("Stack smashing detected");
 }
+
+//void delay(unsigned int n)
+//{
+//    while (n--) {
+//        __asm__ volatile ("nop");
+//    }
+//}
 
 static void serial_start(void)
 {
@@ -78,10 +89,12 @@ int main(void)
 //    	delay(SystemCoreClock/16);
 //    	gpio_toggle(FRONT_LED);
 //    		chprintf((BaseSequentialStream *)&SD3, "calibration = %d \n", get_calibrated_prox(0));
-    	controle_LED_MOTOR();
+    	control_led_motor();
 
     }
 
 //        chThdSleepMilliseconds(1000);
 }
+
+
 

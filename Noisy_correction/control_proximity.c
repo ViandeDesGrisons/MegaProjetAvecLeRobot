@@ -1,8 +1,9 @@
-#include <controle_proximity.h>
+#include <control_proximity.h>
 #include <sensors/proximity.h>
 #include "motors.h"
 #include "leds.h"
 
+//=============================INTERNAL FUNCTIONS=============================
 
 uint8_t find_obstacle(void)
 {
@@ -25,16 +26,26 @@ void stop_motor(void)
 	right_motor_set_speed(0);
 }
 
-void controle_LED_MOTOR(void)
+//=============================END INTERNAL FUNCTIONS=============================
+
+//=============================EXTERNAL FUNCTIONS=============================
+
+void control_led_motor(void)
 {
 	if (find_obstacle()) {
 		stop_motor();
-		set_body_led(ON);
-		set_front_led(ON);
+		set_led(LED1, ON);
+		set_led(LED3, ON);
+		set_led(LED5, ON);
+		set_led(LED7, ON);
+//		set_body_led(ON);
+//		set_front_led(ON);
 	}else{
 		//set_redemarer motor??
-		set_body_led(OFF);
-		set_front_led(OFF);
+		clear_leds();
+//		set_body_led(OFF);
+//		set_front_led(OFF);
 	}
 }
 
+//=============================END EXTERNAL FUNCTIONS=============================

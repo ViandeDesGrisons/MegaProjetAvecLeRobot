@@ -1,5 +1,5 @@
-#ifndef CONTROLE_PROXIMITY_H_
-#define CONTROLE_PROXIMITY_H_
+#ifndef CONTROL_PROXIMITY_H_
+#define CONTROL_PROXIMITY_H_
 
 #define DETECTION_DISTANCE 500 //distance minimum before the contact (find with testing)
 
@@ -18,6 +18,6 @@
 #define ON                 1
 #define OFF                0
 
-void controle_LED_MOTOR(void);
+void control_led_motor(void);
 
-#endif /* CONTROLE_PROXIMITY_H_ */
+#endif /* CONTROL_PROXIMITY_H_ */
