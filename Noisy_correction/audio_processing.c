@@ -38,6 +38,12 @@ void find_sound(float* dataLeft, float* dataLeft_cmplx, float* dataRight_cmplx, 
 
 	float max_norm = MIN_VALUE_THRESHOLD;
 	int16_t max_norm_index = -1;
+	static uint8_t average_index = 0;
+	static float Left_Phase = 0;
+	static float Right_Phase = 0;
+	static float Front_Phase = 0;
+	static float Back_Phase = 0;
+	static uint8_t old_state = 0;
 
 	//search for the highest peak of the Left, Right, Front and Back mic
 	for(uint16_t i = MIN_FREQ ; i <= MAX_FREQ ; i++){
@@ -47,59 +53,99 @@ void find_sound(float* dataLeft, float* dataLeft_cmplx, float* dataRight_cmplx, 
 		}
 	}
 
+	//find the real and im part of each mic in order to compute the phase
+	float max_Left_real = dataLeft_cmplx[2*max_norm_index];
+	float max_Left_im = dataLeft_cmplx[2*max_norm_index + 1];
+	float max_Right_real = dataRight_cmplx[2*max_norm_index];
+	float max_Right_im = dataRight_cmplx[2*max_norm_index + 1];
+	float max_Front_real = dataFront_cmplx[2*max_norm_index];
+	float max_Front_im = dataFront_cmplx[2*max_norm_index + 1];
+	float max_Back_real = dataBack_cmplx[2*max_norm_index];
+	float max_Back_im = dataBack_cmplx[2*max_norm_index + 1];
+
+	//Compute the phase of the mics to see from where the sound is coming
+	Left_Phase = Left_Phase + atan2(max_Left_im, max_Left_real);
+	Right_Phase = Right_Phase + atan2(max_Right_im, max_Right_real);
+	Front_Phase = Front_Phase + atan2(max_Front_im, max_Front_real);
+	Back_Phase = Back_Phase + atan2(max_Back_im, max_Back_real);
+
 	if(max_norm_index >= FREQ_LEFT_L && max_norm_index <= FREQ_LEFT_H){
 
-		//find the real and im part of each mic in order to compute the phase
-		float max_Left_real = dataLeft_cmplx[2*max_norm_index];
-		float max_Left_im = dataLeft_cmplx[2*max_norm_index + 1];
-		float max_Right_real = dataRight_cmplx[2*max_norm_index];
-		float max_Right_im = dataRight_cmplx[2*max_norm_index + 1];
-		float max_Front_real = dataFront_cmplx[2*max_norm_index];
-		float max_Front_im = dataFront_cmplx[2*max_norm_index + 1];
-		float max_Back_real = dataBack_cmplx[2*max_norm_index];
-		float max_Back_im = dataBack_cmplx[2*max_norm_index + 1];
+		if(average_index > 2){
 
-		//Compute the phase of the mics to see from where the sound is coming
-		float Left_Phase = atan2(max_Left_im, max_Left_real);
-		float Right_Phase = atan2(max_Right_im, max_Right_real);
-		float Front_Phase = atan2(max_Front_im, max_Front_real);
-		float Back_Phase = atan2(max_Back_im, max_Back_real);
-		float phase_diff = Left_Phase - Right_Phase;
-		chprintf((BaseSequentialStream *)&SD3, "phase_diff: %f \n", phase_diff);
+			Left_Phase = Left_Phase/average_index;
+			Right_Phase = Right_Phase/average_index;
+			Front_Phase = Front_Phase/average_index;
+			Back_Phase = Back_Phase/average_index;
+			average_index = 0;
+			chprintf((BaseSequentialStream *)&SD3, "Front: %f \n", Front_Phase);
+			chprintf((BaseSequentialStream *)&SD3, "Back: %f \n", Back_Phase);
 
-		//if the sound is coming from the left, turn right
-		if(Left_Phase < Right_Phase - PHASE_THRESHOLD){
-			left_motor_set_speed(600);
-			right_motor_set_speed(-600);
-			set_body_led(1);
-		}
-
-		//if the sound is coming from the right, turn left
-		if(Right_Phase < Left_Phase - PHASE_THRESHOLD){
-			left_motor_set_speed(-600);
-			right_motor_set_speed(600);
-			set_body_led(1);
-		}
-
-		//if the robot is centered, go frontward or backward depending from where the sound is coming
-		if(fabs(Right_Phase - Left_Phase) <= PHASE_THRESHOLD){
-			if(Front_Phase < Back_Phase - PHASE_THRESHOLD){
-				left_motor_set_speed(600);
-				right_motor_set_speed(600);
+			//if the sound is coming from the left, turn left
+			if(Left_Phase < Right_Phase - PHASE_THRESHOLD){
+				left_motor_set_speed(-300);
+				right_motor_set_speed(300);
+				old_state = 3;
 				set_body_led(1);
 			}
 
-			if(Back_Phase < Front_Phase - PHASE_THRESHOLD){
+			//if the sound is coming from the right, turn right
+			if(Right_Phase < Left_Phase - PHASE_THRESHOLD){
+				left_motor_set_speed(300);
+				right_motor_set_speed(-300);
+				old_state = 4;
+				set_body_led(1);
+			}
+
+			//if the robot is centered, go frontward or backward depending from where the sound is coming
+			if(fabs(Right_Phase - Left_Phase) <= PHASE_THRESHOLD){
+				if(Front_Phase < Back_Phase - PHASE_THRESHOLD){
+					left_motor_set_speed(600);
+					right_motor_set_speed(600);
+					old_state = 1;
+					set_body_led(1);
+				}
+
+				if(Back_Phase < Front_Phase - PHASE_THRESHOLD){
+					left_motor_set_speed(-600);
+					right_motor_set_speed(-600);
+					old_state = 2;
+					set_body_led(1);
+				}
+			}
+			Left_Phase = 0;
+			Right_Phase = 0;
+			Front_Phase = 0;
+			Back_Phase = 0;
+		}else{
+			if(old_state == 0){
+				left_motor_set_speed(0);
+				right_motor_set_speed(0);
+			}
+			if(old_state == 1){
+				left_motor_set_speed(600);
+				right_motor_set_speed(600);
+			}
+			if(old_state == 2){
 				left_motor_set_speed(-600);
 				right_motor_set_speed(-600);
-				set_body_led(1);
+			}
+			if(old_state == 3){
+				left_motor_set_speed(-300);
+				right_motor_set_speed(300);
+			}
+			if(old_state == 4){
+				left_motor_set_speed(300);
+				right_motor_set_speed(-300);
 			}
 		}
 	}else{
 		left_motor_set_speed(0);
 		right_motor_set_speed(0);
+		old_state = 0;
 		set_body_led(0);
 	}
+	average_index++;
 }
 
 
