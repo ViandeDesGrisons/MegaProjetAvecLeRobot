@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <stdio.h> //attention deja defini dans avoid obstacle
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -79,6 +79,7 @@ int main(void)
 	calibrate_ir();
 
 	//detection_start();
+	turn_and_move(1);
     /* Infinite loop. */
     while (1) {
     }
