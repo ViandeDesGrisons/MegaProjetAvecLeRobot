@@ -26,7 +26,6 @@ static float micFront_output[FFT_SIZE];
 static float micBack_output[FFT_SIZE];
 
 #define MIN_VALUE_THRESHOLD	10000 
-#define PI 					3.14
 
 #define MIN_FREQ			10	//we don't analyze before this index to not use resources for nothing
 #define FREQ_LEFT			26	//406Hz

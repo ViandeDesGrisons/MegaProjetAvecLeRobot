@@ -8,13 +8,15 @@
 #include <usbcfg.h>
 #include <main.h>
 #include <chprintf.h>
-#include <motors.h>
 #include <audio/microphone.h>
+#include <motors.h>
 
 #include <audio_processing.h>
 #include <fft.h>
 #include <communications.h>
 #include <arm_math.h>
+
+#define PI 					3.14
 
 static void serial_start(void)
 {
@@ -59,9 +61,19 @@ int main(void)
     timer12_start();
     //inits the motors
     motors_init();
+
+    quarter_turn();
     //begin audio processing
     mic_start(&processAudioData);
 
+}
+
+void quarter_turn(void){
+   	left_motor_set_speed(250);
+   	right_motor_set_speed(-250);
+   	chThdSleepMilliseconds(2000);
+	left_motor_set_speed(0);
+	right_motor_set_speed(0);
 }
 
 #define STACK_CHK_GUARD 0xe2dee396
