@@ -14,11 +14,9 @@
 #include <control_proximity.h>
 #include <i2c_bus.h>
 #include <msgbus/messagebus.h>
+//#include <avoid_obstacle.h>
 
 #define STACK_CHK_GUARD 0xe2dee396
-
-//#include <pi_regulator.h>
-//#include <process_image.h>
 
 messagebus_t bus;
 MUTEX_DECL(bus_lock);
@@ -31,13 +29,6 @@ void __stack_chk_fail(void)
     chSysHalt("Stack smashing detected");
 }
 
-//void delay(unsigned int n)
-//{
-//    while (n--) {
-//        __asm__ volatile ("nop");
-//    }
-//}
-
 static void serial_start(void)
 {
 	static SerialConfig ser_cfg = {
@@ -49,6 +40,20 @@ static void serial_start(void)
 
 	sdStart(&SD3, &ser_cfg); // UART3.
 }
+
+//static THD_FUNCTION(ThdProximity, arg) {
+//
+//    chRegSetThreadName(__FUNCTION__);
+//    (void)arg;
+//
+////    systime_t time;
+//
+//    while(1){
+////        time = chVTGetSystemTime();
+//        palTogglePad(GPIOD, GPIOD_LED_FRONT);
+//        chThdSleepUntilWindowed(time, time + MS2ST(10));
+//    }
+//}
 
 int main(void)
 {
@@ -63,34 +68,19 @@ int main(void)
     usb_start();
     //starts the camera
     dcmi_start();
+	//initialises clock generation
 	po8030_start();
 	//inits the motors
 	motors_init();
 
-	//stars the threads for the pi regulator and the processing of the image
-//	pi_regulator_start();
-//	process_image_start();
-
 	messagebus_init(&bus, &bus_lock, &bus_condvar);
-
-	//mettre genre sleep de 1000ms pour être sûr
 
 	proximity_start();
 	calibrate_ir();
 
-//    // Enable GPIOB and GPIOD peripheral clock for the LEDs
-//    RCC->AHB1ENR    |= RCC_AHB1ENR_GPIOBEN | RCC_AHB1ENR_GPIODEN;
-//
-//    // FRONT_LED defined in main.h
-//    gpio_config_output_opendrain(FRONT_LED);
-
+	//detection_start();
     /* Infinite loop. */
     while (1) {
-//    	delay(SystemCoreClock/16);
-//    	gpio_toggle(FRONT_LED);
-//    		chprintf((BaseSequentialStream *)&SD3, "calibration = %d \n", get_calibrated_prox(0));
-    	control_led_motor();
-
     }
 
 //        chThdSleepMilliseconds(1000);
