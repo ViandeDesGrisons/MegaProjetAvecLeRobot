@@ -1,6 +1,16 @@
 #include <avoid_obstacle.h>
 #include "motors.h"
 
+//=============================STRUCTURE=============================
+
+static struct direction
+{
+	uint8_t front_sensor[2];
+	uint8_t right_sensor[2];
+	uint8_t back_sensor[2];
+	uint8_t left_sensor[2];
+} actual_direction;
+
 //=============================INTERNAL FUNCTIONS=============================
 
 uint8_t verify_front(void)
@@ -45,16 +55,13 @@ void stop_motor(void)
 	right_motor_set_speed(0);
 }
 
-void rotation(uint8_t side) //Romain a fait
+void rotation(uint8_t side)
 {
-	left_motor_set_pos(0);
-	right_motor_set_pos(0);
 	left_motor_set_speed(side*SPEED_MOTOR);
 	right_motor_set_speed(-side*SPEED_MOTOR);
-	while ((abs(left_motor_get_pos()) < abs(side*QUARTER_TURN/FULL_TURN)*STEPS_WHEEL_TURN*CORRECTION_FACTOR)
-		&& (abs(right_motor_get_pos()) < abs(side*QUARTER_TURN/FULL_TURN)*STEPS_WHEEL_TURN*CORRECTION_FACTOR)){
-	}
-		stop_motor();
+	chThdSleepMilliseconds(TIME_TO_TURN);
+	left_motor_set_speed(0);
+	right_motor_set_speed(0);
 }
 
 //uint8_t find_obstacle_front_back(void)

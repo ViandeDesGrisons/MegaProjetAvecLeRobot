@@ -32,10 +32,7 @@
 #define LEFT              -1
 #define RIGHT			   1
 
-#define QUARTER_TURN       90
-#define FULL_TURN          360
-#define STEPS_WHEEL_TURN   1000
-#define CORRECTION_FACTOR  1
+#define TIME_TO_TURN       2000
 
 uint8_t find_obstacle(void);
 void avoid_obstacle(void);
