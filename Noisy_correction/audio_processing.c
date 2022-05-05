@@ -26,6 +26,7 @@ static float micFront_output[FFT_SIZE];
 static float micBack_output[FFT_SIZE];
 
 #define MIN_VALUE_THRESHOLD	10000 
+#define PI 					3.14
 
 #define MIN_FREQ			10	//we don't analyze before this index to not use resources for nothing
 #define FREQ_LEFT			26	//406Hz
@@ -33,6 +34,7 @@ static float micBack_output[FFT_SIZE];
 #define FREQ_LEFT_L			(FREQ_LEFT-1)
 #define FREQ_LEFT_H			(FREQ_LEFT+1)
 #define PHASE_THRESHOLD		0.3 //à modifier
+#define MODULO_THRESHOLD	PI/2
 
 void find_sound(float* dataLeft, float* dataLeft_cmplx, float* dataRight_cmplx, float* dataFront_cmplx, float* dataBack_cmplx){
 
@@ -81,6 +83,13 @@ void find_sound(float* dataLeft, float* dataLeft_cmplx, float* dataRight_cmplx, 
 			chprintf((BaseSequentialStream *)&SD3, "Front: %f \n", Front_Phase);
 			chprintf((BaseSequentialStream *)&SD3, "Back: %f \n", Back_Phase);
 
+			if((Right_Phase - Left_Phase) >= MODULO_THRESHOLD){
+				Right_Phase = Right_Phase - 2*PI;
+				}
+			if((Left_Phase - Right_Phase) >= MODULO_THRESHOLD){
+				Left_Phase = Left_Phase - 2*PI;
+				}
+
 			//if the sound is coming from the left, turn left
 			if(Left_Phase < Right_Phase - PHASE_THRESHOLD){
 				left_motor_set_speed(-300);
@@ -99,6 +108,14 @@ void find_sound(float* dataLeft, float* dataLeft_cmplx, float* dataRight_cmplx, 
 
 			//if the robot is centered, go frontward or backward depending from where the sound is coming
 			if(fabs(Right_Phase - Left_Phase) <= PHASE_THRESHOLD){
+
+				if((Front_Phase - Back_Phase) >= MODULO_THRESHOLD){
+					Front_Phase = Front_Phase - 2*PI;
+					}
+				if((Back_Phase - Front_Phase) >= MODULO_THRESHOLD){
+					Back_Phase = Back_Phase - 2*PI;
+					}
+
 				if(Front_Phase < Back_Phase - PHASE_THRESHOLD){
 					left_motor_set_speed(600);
 					right_motor_set_speed(600);
