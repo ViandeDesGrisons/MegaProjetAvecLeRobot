@@ -25,15 +25,102 @@ static float micRight_output[FFT_SIZE];
 static float micFront_output[FFT_SIZE];
 static float micBack_output[FFT_SIZE];
 
-#define MIN_VALUE_THRESHOLD	10000 
 
-#define MIN_FREQ			10	//we don't analyze before this index to not use resources for nothing
-#define FREQ_LEFT			26	//406Hz
-#define MAX_FREQ			30	//we don't analyze after this index to not use resources for nothing
-#define FREQ_LEFT_L			(FREQ_LEFT-1)
-#define FREQ_LEFT_H			(FREQ_LEFT+1)
-#define PHASE_THRESHOLD		0.3 //à modifier
-#define MODULO_THRESHOLD	PI/2
+void move_the_robot(float Left_Phase, float Right_Phase, float Front_Phase,
+						float Back_Phase, uint16_t the_speed, uint8_t *index, uint8_t old_state){
+
+	//we need 3 samples to do the average
+	if(*index > 2){
+		Left_Phase = Left_Phase/(*index);
+		Right_Phase = Right_Phase/(*index);
+		Front_Phase = Front_Phase/(*index);
+		Back_Phase = Back_Phase/(*index);
+		*index = 0;														//restore the average index
+		chprintf((BaseSequentialStream *)&SD3, "Front: %f \n", Front_Phase);
+		chprintf((BaseSequentialStream *)&SD3, "Back: %f \n", Back_Phase);
+
+		//The phase is true modulo 2*pi
+		if((Right_Phase - Left_Phase) >= MODULO_THRESHOLD){
+			Right_Phase = Right_Phase - 2*PI;
+			}
+		if((Left_Phase - Right_Phase) >= MODULO_THRESHOLD){
+			Left_Phase = Left_Phase - 2*PI;
+			}
+
+		//if the sound is coming from the left, turn left
+		if(Left_Phase < Right_Phase - PHASE_THRESHOLD){
+			left_motor_set_speed(-TURN_SPEED);
+			right_motor_set_speed(TURN_SPEED);
+			old_state = 3;
+			set_body_led(1);
+		}
+
+		//if the sound is coming from the right, turn right
+		if(Right_Phase < Left_Phase - PHASE_THRESHOLD){
+			left_motor_set_speed(TURN_SPEED);
+			right_motor_set_speed(-TURN_SPEED);
+			old_state = 4;
+			set_body_led(1);
+		}
+
+		//if the robot is centered, go frontward or backward depending from where the sound is coming
+		if(fabs(Right_Phase - Left_Phase) <= PHASE_THRESHOLD){
+
+			//The phase is true modulo 2*pi
+			if((Front_Phase - Back_Phase) >= MODULO_THRESHOLD){
+				Front_Phase = Front_Phase - 2*PI;
+				}
+			if((Back_Phase - Front_Phase) >= MODULO_THRESHOLD){
+				Back_Phase = Back_Phase - 2*PI;
+				}
+
+			//If the sound is coming from the front, go backward
+			if(Front_Phase < Back_Phase - PHASE_THRESHOLD){
+				left_motor_set_speed(the_speed);
+				right_motor_set_speed(the_speed);
+				old_state = 1;
+				set_body_led(1);
+			}
+
+			//If the sound is coming from the back, go frontward
+			if(Back_Phase < Front_Phase - PHASE_THRESHOLD){
+				left_motor_set_speed(-the_speed);
+				right_motor_set_speed(-the_speed);
+				old_state = 2;
+				set_body_led(1);
+			}
+		}
+		//restore the phases to do a new average
+		Left_Phase = 0;
+		Right_Phase = 0;
+		Front_Phase = 0;
+		Back_Phase = 0;
+
+	}else{
+		//To conserve the old states of the motors if less than 3 phase computations
+		if(old_state == 0){
+			left_motor_set_speed(0);
+			right_motor_set_speed(0);
+		}
+		if(old_state == 1){
+			left_motor_set_speed(the_speed);
+			right_motor_set_speed(the_speed);
+		}
+		if(old_state == 2){
+			left_motor_set_speed(-the_speed);
+			right_motor_set_speed(-the_speed);
+		}
+		if(old_state == 3){
+			left_motor_set_speed(-TURN_SPEED);
+			right_motor_set_speed(TURN_SPEED);
+		}
+		if(old_state == 4){
+			left_motor_set_speed(TURN_SPEED);
+			right_motor_set_speed(-TURN_SPEED);
+		}
+	}
+}
+
 
 void find_sound(float* dataLeft, float* dataLeft_cmplx, float* dataRight_cmplx, float* dataFront_cmplx, float* dataBack_cmplx){
 
@@ -45,6 +132,7 @@ void find_sound(float* dataLeft, float* dataLeft_cmplx, float* dataRight_cmplx, 
 	static float Front_Phase = 0;
 	static float Back_Phase = 0;
 	static uint8_t old_state = 0;
+	uint16_t robot_speed = 0;
 
 	//search for the highest peak of the Left, Right, Front and Back mic
 	for(uint16_t i = MIN_FREQ ; i <= MAX_FREQ ; i++){
@@ -65,96 +153,24 @@ void find_sound(float* dataLeft, float* dataLeft_cmplx, float* dataRight_cmplx, 
 	float max_Back_im = dataBack_cmplx[2*max_norm_index + 1];
 
 	//Compute the phase of the mics to see from where the sound is coming
+	//we are doing an average to improve the sound detection
 	Left_Phase = Left_Phase + atan2(max_Left_im, max_Left_real);
 	Right_Phase = Right_Phase + atan2(max_Right_im, max_Right_real);
 	Front_Phase = Front_Phase + atan2(max_Front_im, max_Front_real);
 	Back_Phase = Back_Phase + atan2(max_Back_im, max_Back_real);
 
-	if(max_norm_index >= FREQ_LEFT_L && max_norm_index <= FREQ_LEFT_H){
-
-		if(average_index > 2){
-
-			Left_Phase = Left_Phase/average_index;
-			Right_Phase = Right_Phase/average_index;
-			Front_Phase = Front_Phase/average_index;
-			Back_Phase = Back_Phase/average_index;
-			average_index = 0;
-			chprintf((BaseSequentialStream *)&SD3, "Front: %f \n", Front_Phase);
-			chprintf((BaseSequentialStream *)&SD3, "Back: %f \n", Back_Phase);
-
-			if((Right_Phase - Left_Phase) >= MODULO_THRESHOLD){
-				Right_Phase = Right_Phase - 2*PI;
-				}
-			if((Left_Phase - Right_Phase) >= MODULO_THRESHOLD){
-				Left_Phase = Left_Phase - 2*PI;
-				}
-
-			//if the sound is coming from the left, turn left
-			if(Left_Phase < Right_Phase - PHASE_THRESHOLD){
-				left_motor_set_speed(-300);
-				right_motor_set_speed(300);
-				old_state = 3;
-				set_body_led(1);
-			}
-
-			//if the sound is coming from the right, turn right
-			if(Right_Phase < Left_Phase - PHASE_THRESHOLD){
-				left_motor_set_speed(300);
-				right_motor_set_speed(-300);
-				old_state = 4;
-				set_body_led(1);
-			}
-
-			//if the robot is centered, go frontward or backward depending from where the sound is coming
-			if(fabs(Right_Phase - Left_Phase) <= PHASE_THRESHOLD){
-
-				if((Front_Phase - Back_Phase) >= MODULO_THRESHOLD){
-					Front_Phase = Front_Phase - 2*PI;
-					}
-				if((Back_Phase - Front_Phase) >= MODULO_THRESHOLD){
-					Back_Phase = Back_Phase - 2*PI;
-					}
-
-				if(Front_Phase < Back_Phase - PHASE_THRESHOLD){
-					left_motor_set_speed(600);
-					right_motor_set_speed(600);
-					old_state = 1;
-					set_body_led(1);
-				}
-
-				if(Back_Phase < Front_Phase - PHASE_THRESHOLD){
-					left_motor_set_speed(-600);
-					right_motor_set_speed(-600);
-					old_state = 2;
-					set_body_led(1);
-				}
-			}
-			Left_Phase = 0;
-			Right_Phase = 0;
-			Front_Phase = 0;
-			Back_Phase = 0;
-		}else{
-			if(old_state == 0){
-				left_motor_set_speed(0);
-				right_motor_set_speed(0);
-			}
-			if(old_state == 1){
-				left_motor_set_speed(600);
-				right_motor_set_speed(600);
-			}
-			if(old_state == 2){
-				left_motor_set_speed(-600);
-				right_motor_set_speed(-600);
-			}
-			if(old_state == 3){
-				left_motor_set_speed(-300);
-				right_motor_set_speed(300);
-			}
-			if(old_state == 4){
-				left_motor_set_speed(300);
-				right_motor_set_speed(-300);
-			}
-		}
+	if(max_norm_index >= FREQ_1_L && max_norm_index <= FREQ_1_H){
+		robot_speed = 200;
+		move_the_robot(Left_Phase, Right_Phase, Front_Phase, Back_Phase, robot_speed, &average_index, old_state);
+	}else if(max_norm_index >= FREQ_2_L && max_norm_index <= FREQ_2_H){
+		robot_speed = 400;
+		move_the_robot(Left_Phase, Right_Phase, Front_Phase, Back_Phase, robot_speed, &average_index, old_state);
+	}else if(max_norm_index >= FREQ_3_L && max_norm_index <= FREQ_3_H){
+		robot_speed = 600;
+		move_the_robot(Left_Phase, Right_Phase, Front_Phase, Back_Phase, robot_speed, &average_index, old_state);
+	}else if(max_norm_index >= FREQ_4_L && max_norm_index <= FREQ_4_H){
+		robot_speed = 800;
+		move_the_robot(Left_Phase, Right_Phase, Front_Phase, Back_Phase, robot_speed, &average_index, old_state);
 	}else{
 		left_motor_set_speed(0);
 		right_motor_set_speed(0);

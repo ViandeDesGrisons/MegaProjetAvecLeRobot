@@ -1,6 +1,24 @@
 #ifndef AUDIO_PROCESSING_H
 #define AUDIO_PROCESSING_H
 
+#define MIN_VALUE_THRESHOLD	10000
+#define MIN_FREQ			10	//we don't analyze before this index to not use resources for nothing
+#define MAX_FREQ			30	//we don't analyze after this index to not use resources for nothing
+#define FREQ_1			16	//250Hz
+#define FREQ_1_L			(FREQ_1-1)
+#define FREQ_1_H			(FREQ_1+1)
+#define FREQ_2			19	//296Hz
+#define FREQ_2_L			(FREQ_2-1)
+#define FREQ_2_H			(FREQ_2+1)
+#define FREQ_3			23	//359Hz
+#define FREQ_3_L			(FREQ_3-1)
+#define FREQ_3_H			(FREQ_3+1)
+#define FREQ_4			26	//406Hz
+#define FREQ_4_L			(FREQ_4-1)
+#define FREQ_4_H			(FREQ_4+1)
+#define PHASE_THRESHOLD		0.3 //experimental
+#define MODULO_THRESHOLD	PI/2
+#define TURN_SPEED			300
 
 #define FFT_SIZE 	1024
 

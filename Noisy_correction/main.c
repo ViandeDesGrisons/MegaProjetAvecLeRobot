@@ -62,7 +62,6 @@ int main(void)
     //inits the motors
     motors_init();
 
-    quarter_turn();
     //begin audio processing
     mic_start(&processAudioData);
 
