@@ -4,37 +4,11 @@
 #include "motors.h"
 #include "leds.h"
 
-//============================THREADS=============================
-//============================END THREADS=============================
-
 //=============================GLOBAL VARIABLES=============================
 uint8_t active_detection=OFF;
+//=============================END GLOBAL VARIABLES=============================
 
-//=============================INTERNAL FUNCTIONS=============================
-
-//=============================END INTERNAL FUNCTIONS=============================
-
-//=============================EXTERNAL FUNCTIONS=============================
-
-void control_led_motor(void)
-{
-	if (find_obstacle()) {
-		stop_motor();
-		set_led(LED1, ON);
-		set_led(LED3, ON);
-		set_led(LED5, ON);
-		set_led(LED7, ON);
-//		set_body_led(ON);
-//		set_front_led(ON);
-		avoid_obstacle();
-	}else{ //mettre directement dans main cette partie
-		//set_redemarer motor
-		clear_leds();
-//		set_body_led(OFF);
-//		set_front_led(OFF);
-	}
-}
-
+//============================THREADS=============================
 static THD_WORKING_AREA(waThdDetection, 128);
 static THD_FUNCTION(ThdDetection, arg) {
 
@@ -61,6 +35,22 @@ void detection_start(void)
 {
 	chThdCreateStatic(waThdDetection, sizeof(waThdDetection), NORMALPRIO+1, ThdDetection, NULL);
 
+}
+//============================END THREADS=============================
+
+//=============================EXTERNAL FUNCTIONS=============================
+
+void control_led_motor(void) //mettre dans partie dans partie de Romain
+{
+	if (find_obstacle()) {
+		set_led(LED1, ON);
+		set_led(LED3, ON);
+		set_led(LED5, ON);
+		set_led(LED7, ON);
+		avoid_obstacle();
+	}else{ //mettre directement dans main cette partie
+		clear_leds();
+	}
 }
 
 //=============================END EXTERNAL FUNCTIONS=============================

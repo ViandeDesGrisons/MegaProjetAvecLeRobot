@@ -14,7 +14,7 @@
 #include <control_proximity.h>
 #include <i2c_bus.h>
 #include <msgbus/messagebus.h>
-//#include <avoid_obstacle.h>
+#include <avoid_obstacle.h> //a enlever
 
 #define STACK_CHK_GUARD 0xe2dee396
 
@@ -78,10 +78,19 @@ int main(void)
 	proximity_start();
 	calibrate_ir();
 
-	//detection_start();
-	turn_and_move(1);
+//	detection_start();
     /* Infinite loop. */
+//	change_direction_sensor(1,2,3,4);
+//	quarter_turn(-1);
+//	chprintf((BaseSequentialStream *)&SD3, "change direction = %d \n", change_direction_sensor(1,2,3,4));
     while (1) {
+    	turn_and_move(-1);
+
+//    	chprintf((BaseSequentialStream *)&SD3, "verify left = %d \n", verify_left());
+//    	chprintf((BaseSequentialStream *)&SD3, "verify right = %d \n", verify_right());
+//    	chprintf((BaseSequentialStream *)&SD3, "verify back = %d \n", verify_back());
+//    	chprintf((BaseSequentialStream *)&SD3, "verify front = %d \n", verify_front());
+//    	chprintf((BaseSequentialStream *)&SD3, "get_prox = %d \n", get_prox(SENSOR_IR3));
     }
 
 //        chThdSleepMilliseconds(1000);
