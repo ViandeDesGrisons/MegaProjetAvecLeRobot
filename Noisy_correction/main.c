@@ -82,10 +82,12 @@ int main(void)
     /* Infinite loop. */
 //	change_direction_sensor(1,2,3,4);
 //	quarter_turn(-1);
-//	chprintf((BaseSequentialStream *)&SD3, "change direction = %d \n", change_direction_sensor(1,2,3,4));
-    while (1) {
-    	turn_and_move(-1);
+//	turn_and_move(1);
 
+//	quarter_turn(1);
+    while (1) {
+    	avoid_obstacle();
+//    	chprintf((BaseSequentialStream *)&SD3, "get prox diag = %d \n", get_prox(SENSOR_IR2));
 //    	chprintf((BaseSequentialStream *)&SD3, "verify left = %d \n", verify_left());
 //    	chprintf((BaseSequentialStream *)&SD3, "verify right = %d \n", verify_right());
 //    	chprintf((BaseSequentialStream *)&SD3, "verify back = %d \n", verify_back());

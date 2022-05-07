@@ -33,7 +33,7 @@
 #define LEFT              -1 //turn in counterclockwise
 #define RIGHT			   1 //turn in clockwise
 
-#define TIME_TO_TURN       1680
+#define TIME_TO_TURN       1600
 
 uint8_t find_obstacle(void);
 void avoid_obstacle(void);
