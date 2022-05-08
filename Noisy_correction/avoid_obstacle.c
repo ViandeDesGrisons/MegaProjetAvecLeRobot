@@ -75,38 +75,24 @@ uint8_t verify_diag_right(void)
 	}
 	return FALSE;
 }
-//void update_direction(void)
-//{
-//	actual_direction.
-//}
-
-//void change_direction_sensor(uint8_t *old_front(void), uint8_t *old_right(void), uint8_t *old_back(void), uint8_t *old_left(void))
-//{
-//	uint8_t *tampon(void);
-//	*tampon()=*old_front();
-//	*old_front()=*old_back();
-//	*old_back()=*tampon(); //inversion of front captor and back captor
-//
-//	*tampon()=*old_right();
-//	*old_right()=*old_left();
-//	*old_left()=*tampon(); //inversion of left captor and right captor
-//}
-
-void set_speed_motor(uint8_t speed) //attention a uint16 ou uint8
-{
-	left_motor_set_speed(speed);
-	right_motor_set_speed(speed);
-}
 
 void turn_adaptation(int8_t side)
 {
 	if (side==RIGHT){
-		while(!verify_left()){
-			left_motor_set_speed(side*SPEED_MOTOR);
-			right_motor_set_speed(-side*SPEED_MOTOR);
+		if(!verify_left())
+		{
+			while(!verify_left()){
+				left_motor_set_speed(side*SPEED_MOTOR);
+				right_motor_set_speed(-side*SPEED_MOTOR);
+			}
+		}else{
+			while(!verify_back()){
+				left_motor_set_speed(side*SPEED_MOTOR);
+				right_motor_set_speed(-side*SPEED_MOTOR);
+			}
 		}
 	}else{
-		while(!verify_right()){
+		while(!verify_back()){
 			left_motor_set_speed(side*SPEED_MOTOR);
 			right_motor_set_speed(-side*SPEED_MOTOR);
 		}
@@ -118,14 +104,6 @@ void turn_adaptation(int8_t side)
 	}
 	set_speed_motor(0);
 }
-
-//void quarter_turn(int8_t side) //admet qu'il arrive pile en face d'un obstacle puisqu'il tourne de 90 degres
-//{
-//	left_motor_set_speed(side*SPEED_MOTOR);
-//	right_motor_set_speed(-side*SPEED_MOTOR);
-//	chThdSleepMilliseconds(TIME_TO_TURN/1.25);
-//	set_speed_motor(0);
-//}
 
 void motor_turn(float angle, int8_t side)
 {
@@ -161,7 +139,6 @@ void motor_advance_half_epuck(void){
 
 void turn_and_move(int8_t side)
 {
-
 	turn_adaptation(side);
 	if (side==RIGHT)
 	{
@@ -210,6 +187,12 @@ void turn_and_move(int8_t side)
 //=============================END INTERNAL FUNCTIONS=============================
 
 //=============================EXTERNAL FUNCTIONS=============================
+void set_speed_motor(uint8_t speed) //attention a uint16 ou uint8
+{
+	left_motor_set_speed(speed);
+	right_motor_set_speed(speed);
+}
+
 uint8_t find_obstacle(void) //part du principe que l'utilisateur va pas le faire foncer alors'il est sur le côté
 {
 	if (verify_front() || verify_back()){ // || verify_left() || verify_right()){
@@ -233,10 +216,7 @@ void avoid_obstacle(void)
 		}
 		if (verify_back()) //avance dans le mauvais sens, ne peut pas s'adapter à des obastacles non-statique --> ne pourrait pas voir diff entre devant et derriere
 		{
-			motor_turn(180, LEFT); //peu importe side
-//			motor_turn(180);
-//			turn_to(180);
-//			change_direction_sensor(&verify_front(), &verify_right(), &verify_back(), &verify_left());
+			motor_turn(180, RIGHT); //peu importe side
 			if (!verify_right())
 			{
 				turn_and_move(RIGHT);

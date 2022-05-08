@@ -50,6 +50,7 @@ void control_led_motor(void) //mettre dans partie dans partie de Romain
 		avoid_obstacle();
 	}else{ //mettre directement dans main cette partie
 		clear_leds();
+		set_speed_motor(0);
 	}
 }
 

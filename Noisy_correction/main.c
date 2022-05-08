@@ -83,14 +83,15 @@ int main(void)
 //	change_direction_sensor(1,2,3,4);
 //	quarter_turn(-1);
 //	turn_and_move(1);
-
+//	control_led_motor();
 //	quarter_turn(1);
 //	motor_advance_half_epuck();
 //	motor_turn(90,side);
     while (1) {
 //    	chprintf((BaseSequentialStream *)&SD3, "set pos left = %d \n", left_motor_get_pos());
 //    	chprintf((BaseSequentialStream *)&SD3, "set pos right = %d \n", right_motor_get_pos());
-    	avoid_obstacle();
+//    	avoid_obstacle();
+    	control_led_motor();
 //    	chprintf((BaseSequentialStream *)&SD3, "get prox diag = %d \n", get_prox(SENSOR_IR2));
 //    	chprintf((BaseSequentialStream *)&SD3, "verify left = %d \n", verify_left());
 //    	chprintf((BaseSequentialStream *)&SD3, "verify right = %d \n", verify_right());

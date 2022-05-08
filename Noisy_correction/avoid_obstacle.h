@@ -37,6 +37,7 @@
 
 #define TIME_TO_TURN       			1600
 
+void set_speed_motor(uint8_t speed);
 uint8_t find_obstacle(void);
 void avoid_obstacle(void);
 void quarter_turn(int8_t side); //A ENLEVER
