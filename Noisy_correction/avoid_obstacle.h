@@ -36,6 +36,12 @@
 #define LEFT              		   -1 //turn in counterclockwise
 
 #define TIME_TO_TURN       			1600
+#define FULL_ANGLE_DEG				360
+#define STEP_ONE_TURN				1000
+#define CORRECTION_FACTOR			1.3
+#define POSITION_FOR_HALF_EPUCK		300
+#define QUARTER_TURN_DEG			90
+#define HALF_TURN_DEG				180
 
 void set_speed_motor(uint8_t speed);
 uint8_t find_obstacle(void);

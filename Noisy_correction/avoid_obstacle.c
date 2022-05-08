@@ -116,8 +116,8 @@ void motor_turn(float angle, int8_t side)
 
 	// Turns until the desired angle is reached
 
-	while ((abs(left_motor_get_pos()) < fabs((angle/360)*1000*1.3))
-		&& (abs(right_motor_get_pos()) < fabs((angle/360)*1000*1.3))) {
+	while ((abs(left_motor_get_pos()) < fabs((angle/FULL_ANGLE_DEG)*STEP_ONE_TURN*CORRECTION_FACTOR))
+		&& (abs(right_motor_get_pos()) < fabs((angle/FULL_ANGLE_DEG)*STEP_ONE_TURN*CORRECTION_FACTOR))) {
 	}
 	set_speed_motor(0);
 }
@@ -131,8 +131,8 @@ void motor_advance_half_epuck(void){
 	right_motor_set_speed(SPEED_MOTOR);
 
 	// Turns until the desired angle is reached
-	while ((abs(left_motor_get_pos()) < 300)
-		&& (abs(right_motor_get_pos()) < 300)) {
+	while ((abs(left_motor_get_pos()) < POSITION_FOR_HALF_EPUCK)
+		&& (abs(right_motor_get_pos()) < POSITION_FOR_HALF_EPUCK)) {
 	}
 	set_speed_motor(0);
 }
@@ -161,7 +161,7 @@ void turn_and_move(int8_t side)
 		}
 	}
 	motor_advance_half_epuck();
-	motor_turn(90, -side);
+	motor_turn(QUARTER_TURN_DEG, -side);
 	if (side==RIGHT)
 	{
 		while (verify_left() || verify_diag_left()){
@@ -216,7 +216,7 @@ void avoid_obstacle(void)
 		}
 		if (verify_back()) //avance dans le mauvais sens, ne peut pas s'adapter à des obastacles non-statique --> ne pourrait pas voir diff entre devant et derriere
 		{
-			motor_turn(180, RIGHT); //peu importe side
+			motor_turn(HALF_TURN_DEG, RIGHT); //peu importe side
 			if (!verify_right())
 			{
 				turn_and_move(RIGHT);
