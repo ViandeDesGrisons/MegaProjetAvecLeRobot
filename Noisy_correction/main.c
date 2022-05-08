@@ -67,16 +67,16 @@ int main(void)
     //start the USB communication
     usb_start();
     //starts the camera
-    dcmi_start();
+//    dcmi_start();
 	//initialises clock generation
-	po8030_start();
+//	po8030_start();
 	//inits the motors
 	motors_init();
 
 	messagebus_init(&bus, &bus_lock, &bus_condvar);
 
 	proximity_start();
-	calibrate_ir();
+//	calibrate_ir();
 
 //	detection_start();
     /* Infinite loop. */
@@ -85,7 +85,11 @@ int main(void)
 //	turn_and_move(1);
 
 //	quarter_turn(1);
+//	motor_advance_half_epuck();
+//	motor_turn(90,side);
     while (1) {
+//    	chprintf((BaseSequentialStream *)&SD3, "set pos left = %d \n", left_motor_get_pos());
+//    	chprintf((BaseSequentialStream *)&SD3, "set pos right = %d \n", right_motor_get_pos());
     	avoid_obstacle();
 //    	chprintf((BaseSequentialStream *)&SD3, "get prox diag = %d \n", get_prox(SENSOR_IR2));
 //    	chprintf((BaseSequentialStream *)&SD3, "verify left = %d \n", verify_left());
