@@ -1,7 +1,6 @@
 #include <control_proximity.h>
 #include <sensors/proximity.h>
 #include <avoid_obstacle.h>
-#include "motors.h"
 #include "leds.h"
 
 //=============================GLOBAL VARIABLES=============================
@@ -18,16 +17,11 @@ static THD_FUNCTION(ThdDetection, arg) {
 //     time;
 
     while(1){
-//        time = chVTGetSystemTime();
-//        palTogglePad(GPIOD, GPIOD_LED_FRONT);
-//    	  avoid_obstacle();
     	  if (find_obstacle())
     	  {
     		  active_detection=ON;
     	  }
-//        chThdSleepUntilWindowed(time, time + MS2ST(10));
         messagebus_topic_wait();
-
     }
 }
 
@@ -48,7 +42,7 @@ void control_led_motor(void) //mettre dans partie dans partie de Romain
 		set_led(LED5, ON);
 		set_led(LED7, ON);
 		avoid_obstacle();
-	}else{ //mettre directement dans main cette partie
+	}else{
 		clear_leds();
 		set_speed_motor(0);
 	}

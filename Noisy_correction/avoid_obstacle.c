@@ -1,28 +1,7 @@
 #include <stdio.h>
 #include <avoid_obstacle.h>
-//#include <chprintf.h> //a enlever
+#include <math.h>
 #include "motors.h"
-//#include "ch.h"
-//#include "hal.h"
-//#include <i2c_bus.h>
-//#include <msgbus/messagebus.h>
-
-////=============================STRUCTURE=============================
-//
-//static struct direction
-//{
-//	uint8_t front_sensor[2]; //activ front sensor
-//	uint8_t back_sensor[2];  //activ back sensor
-//	uint8_t left_sensor;     //activ left sensor
-//	uint8_t right_sensor;    //activ right sensor
-//	uint8_t diagonal [2];
-//
-//	enum {
-//		FORWARD = 1;
-//		BACKWARD = -1;
-//	}sens;
-//}actual_direction;
-
 
 //=============================INTERNAL FUNCTIONS=============================
 
@@ -81,26 +60,30 @@ void turn_adaptation(int8_t side)
 	if (side==RIGHT){
 		if(!verify_left())
 		{
+			//turn until the wheels will be parallel to the obstacle
 			while(!verify_left()){
 				left_motor_set_speed(side*SPEED_MOTOR);
 				right_motor_set_speed(-side*SPEED_MOTOR);
 			}
 		}else{
+			//same but at beginning there is already something in his left side
 			while(!verify_back()){
 				left_motor_set_speed(side*SPEED_MOTOR);
 				right_motor_set_speed(-side*SPEED_MOTOR);
 			}
 		}
 	}else{
+		//turn on the right side because there is something in his left side
 		while(!verify_back()){
 			left_motor_set_speed(side*SPEED_MOTOR);
 			right_motor_set_speed(-side*SPEED_MOTOR);
 		}
 	}
+	//correction factor because he don't finish to turn
 	left_motor_set_pos(0);
 	right_motor_set_pos(0);
-	while ((abs(left_motor_get_pos()) < TURN_CORRECTION)
-		&& (abs(right_motor_get_pos()) < TURN_CORRECTION)) {
+	while ((abs(left_motor_get_pos()) < TURN_ADAPTATION_CORRECTION)
+		&& (abs(right_motor_get_pos()) < TURN_ADAPTATION_CORRECTION)) {
 	}
 	set_speed_motor(0);
 }
@@ -114,10 +97,9 @@ void motor_turn(float angle, int8_t side)
 	left_motor_set_speed(side*SPEED_MOTOR);
 	right_motor_set_speed(-side*SPEED_MOTOR);
 
-	// Turns until the desired angle is reached
-
-	while ((abs(left_motor_get_pos()) < fabs((angle/FULL_ANGLE_DEG)*STEP_ONE_TURN*CORRECTION_FACTOR))
-		&& (abs(right_motor_get_pos()) < fabs((angle/FULL_ANGLE_DEG)*STEP_ONE_TURN*CORRECTION_FACTOR))) {
+	// Turns until the angle is reached
+	while ((abs(left_motor_get_pos()) < fabs((angle/FULL_ANGLE_DEG)*STEP_ONE_TURN*TURN_MOTOR_CORRECTION))
+		&& (abs(right_motor_get_pos()) < fabs((angle/FULL_ANGLE_DEG)*STEP_ONE_TURN*TURN_MOTOR_CORRECTION))) {
 	}
 	set_speed_motor(0);
 }
@@ -130,7 +112,7 @@ void motor_advance_half_epuck(void){
 	left_motor_set_speed(SPEED_MOTOR);
 	right_motor_set_speed(SPEED_MOTOR);
 
-	// Turns until the desired angle is reached
+	// Advances until a distance of a half epuck passes
 	while ((abs(left_motor_get_pos()) < POSITION_FOR_HALF_EPUCK)
 		&& (abs(right_motor_get_pos()) < POSITION_FOR_HALF_EPUCK)) {
 	}
@@ -143,19 +125,19 @@ void turn_and_move(int8_t side)
 	if (side==RIGHT)
 	{
 		while (verify_left()){
-			if (verify_front())
+			if (verify_front()) //if there are several obstacles following
 			{
-				turn_and_move(side); //pour ne pas rester coincer dans un coin
-			}else{ //tant que l'obstacle est à sa gauche et qu'il n'y a rien devant
+				turn_and_move(side);
+			}else{ //until obstacle is in his left side and there is nothing in front, he advances
 				set_speed_motor(SPEED_MOTOR);
 			}
 		}
 	}else{ //side==LEFT
 		while (verify_right()){
-			if(verify_front())
+			if(verify_front()) //if there are several obstacles following
 			{
-				turn_and_move(side); //pour ne pas rester coincer dans un coin
-			}else{ //tant que l'obstacle est à sa gauche et qu'il n'y a rien devant
+				turn_and_move(side);
+			}else{ //until obstacle is in his right side and there is nothing in front, he advances
 				set_speed_motor(SPEED_MOTOR);
 			}
 		}
@@ -165,19 +147,19 @@ void turn_and_move(int8_t side)
 	if (side==RIGHT)
 	{
 		while (verify_left() || verify_diag_left()){
-			if (verify_front())
+			if (verify_front()) //if there are several obstacles following
 			{
-				turn_and_move(side); //pour ne pas rester coincer dans un coin
-			}else{ //tant que l'obstacle est à sa gauche et qu'il n'y a rien devant
+				turn_and_move(side);
+			}else{ //until obstacle is in his left side and there is nothing in front, he advances
 				set_speed_motor(SPEED_MOTOR);
 			}
 		}
 	}else{
 		while (verify_right() || verify_diag_right()){
-			if(verify_front())
+			if(verify_front()) //if there are several obstacles following
 			{
-				turn_and_move(side); //pour ne pas rester coincer dans un coin
-			}else{ //tant que l'obstacle est à sa gauche et qu'il n'y a rien devant
+				turn_and_move(side);
+			}else{ //until obstacle is in his right side and there is nothing in front, he advances
 				set_speed_motor(SPEED_MOTOR);
 			}
 		}
@@ -187,44 +169,40 @@ void turn_and_move(int8_t side)
 //=============================END INTERNAL FUNCTIONS=============================
 
 //=============================EXTERNAL FUNCTIONS=============================
-void set_speed_motor(uint8_t speed) //attention a uint16 ou uint8
+uint8_t find_obstacle(void)
 {
-	left_motor_set_speed(speed);
-	right_motor_set_speed(speed);
-}
-
-uint8_t find_obstacle(void) //part du principe que l'utilisateur va pas le faire foncer alors'il est sur le côté
-{
-	if (verify_front() || verify_back()){ // || verify_left() || verify_right()){
+	if (verify_front() || verify_back()){
 		return TRUE;
 	}
 	return FALSE;
 }
 
+void set_speed_motor(uint8_t speed)
+{
+	left_motor_set_speed(speed);
+	right_motor_set_speed(speed);
+}
+
 void avoid_obstacle(void)
 {
-	if (find_obstacle()) //A ENLEVER, FAIS AVANT
+	if (verify_front()) //move in the correct direction
 	{
-		if (verify_front()) //avance dans le bon sens
+		if (!verify_right())
 		{
-			if (!verify_right())
-			{
-				turn_and_move(RIGHT);
-			}else{
-				turn_and_move(LEFT); //part du principe qu'il ne peut pas avoir un obstacle des 2 côtés, cf rapport
-			}
+			turn_and_move(RIGHT);
+		}else{
+			turn_and_move(LEFT);
 		}
-		if (verify_back()) //avance dans le mauvais sens, ne peut pas s'adapter à des obastacles non-statique --> ne pourrait pas voir diff entre devant et derriere
+	}
+	if (verify_back()) //move in the wrong direction
+	{
+		motor_turn(HALF_TURN_DEG, RIGHT); //get back in the correct direction
+		if (!verify_right())
 		{
-			motor_turn(HALF_TURN_DEG, RIGHT); //peu importe side
-			if (!verify_right())
-			{
-				turn_and_move(RIGHT);
-			}else{
-				turn_and_move(LEFT); //part du principe qu'il ne peut pas avoir un obstacle des 2 côtés, cf rapport
-			}
+			turn_and_move(RIGHT);
+		}else{
+			turn_and_move(LEFT);
 		}
 	}
 }
-
 //=============================END EXTERNAL FUNCTIONS=============================
