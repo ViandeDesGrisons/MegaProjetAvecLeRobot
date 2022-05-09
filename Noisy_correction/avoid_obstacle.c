@@ -164,7 +164,6 @@ void turn_and_move(int8_t side)
 			}
 		}
 	}
-	set_speed_motor(0);
 }
 //=============================END INTERNAL FUNCTIONS=============================
 

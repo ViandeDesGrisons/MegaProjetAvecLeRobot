@@ -2,8 +2,9 @@
 #define AVOID_OBSTACLE_H_
 
 #define DETECTION_DISTANCE 			300
-#define DETECTION_DISTANCE_DIAGONAL 50
+#define DETECTION_DISTANCE_DIAGONAL 100
 #define SPEED_MOTOR       			250
+
 
 #define SENSOR_IR1         			0
 #define SENSOR_IR2         			1
@@ -47,5 +48,6 @@
 uint8_t find_obstacle(void);
 void set_speed_motor(uint8_t speed);
 void avoid_obstacle(void);
+void turn_and_move(int8_t side);
 
 #endif /* AVOID_OBSTACLE_H_ */

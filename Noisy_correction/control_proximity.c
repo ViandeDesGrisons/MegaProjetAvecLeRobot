@@ -42,10 +42,9 @@ void control_led_motor(void) //mettre dans partie dans partie de Romain
 		set_led(LED5, ON);
 		set_led(LED7, ON);
 		avoid_obstacle();
-	}else{
-		clear_leds();
-		set_speed_motor(0);
 	}
+	clear_leds();
+	set_speed_motor(0);
 }
 
 //=============================END EXTERNAL FUNCTIONS=============================
