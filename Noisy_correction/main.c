@@ -7,7 +7,6 @@
 #include <usbcfg.h>
 #include <main.h>
 #include <motors.h>
-#include <camera/po8030.h>
 #include <chprintf.h>
 #include <control_proximity.h>
 #include <i2c_bus.h>
