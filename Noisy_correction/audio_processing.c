@@ -23,18 +23,7 @@ static float micBack_cmplx_input[2 * FFT_SIZE];
 static float micLeft_output[FFT_SIZE];
 static float micRight_output[FFT_SIZE];
 static float micFront_output[FFT_SIZE];
-static float micBack_output[FFT_SIZE];
-
-#define MIN_VALUE_THRESHOLD	10000 
-#define PI 					3.14
-
-#define MIN_FREQ			10	//we don't analyze before this index to not use resources for nothing
-#define FREQ_LEFT			26	//406Hz
-#define MAX_FREQ			30	//we don't analyze after this index to not use resources for nothing
-#define FREQ_LEFT_L			(FREQ_LEFT-1)
-#define FREQ_LEFT_H			(FREQ_LEFT+1)
-#define PHASE_THRESHOLD		0.3 //à modifier
-#define MODULO_THRESHOLD	PI/2
+static float micBack_output[FFT_SIZE];s
 
 void find_sound(float* dataLeft, float* dataLeft_cmplx, float* dataRight_cmplx, float* dataFront_cmplx, float* dataBack_cmplx){
 

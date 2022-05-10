@@ -3,6 +3,15 @@
 
 
 #define FFT_SIZE 	1024
+#define MIN_VALUE_THRESHOLD	10000
+#define PI 					3.14
+#define MIN_FREQ			10	//we don't analyze before this index to not use resources for nothing
+#define FREQ_LEFT			26	//406Hz
+#define MAX_FREQ			30	//we don't analyze after this index to not use resources for nothing
+#define FREQ_LEFT_L			(FREQ_LEFT-1)
+#define FREQ_LEFT_H			(FREQ_LEFT+1)
+#define PHASE_THRESHOLD		0.3 //à modifier
+#define MODULO_THRESHOLD	PI/2
 
 typedef enum {
 	//2 times FFT_SIZE because these arrays contain complex numbers (real + imaginary)
