@@ -81,18 +81,18 @@ void turn_adaptation(int8_t side)
 		}
 	}
 	//correction factor because he don't finish to turn
-	left_motor_set_pos(0);
-	right_motor_set_pos(0);
+	left_motor_set_pos(INITIAL_POS);
+	right_motor_set_pos(INITIAL_POS);
 	while ((abs(left_motor_get_pos()) < TURN_ADAPTATION_CORRECTION)
 		&& (abs(right_motor_get_pos()) < TURN_ADAPTATION_CORRECTION)) {
 	}
-	set_speed_motor(0);
+	set_speed_motor(STOP);
 }
 
 void motor_turn(uint8_t angle, int8_t side)
 {
-	left_motor_set_pos(0);
-	right_motor_set_pos(0);
+	left_motor_set_pos(INITIAL_POS);
+	right_motor_set_pos(INITIAL_POS);
 
 	// The e-puck will pivot on itself
 	left_motor_set_speed(side*SPEED_MOTOR);
@@ -102,13 +102,13 @@ void motor_turn(uint8_t angle, int8_t side)
 	while ((abs(left_motor_get_pos()) < fabs(angle*(STEP_ONE_TURN*TURN_MOTOR_CORRECTION/FULL_ANGLE_DEG)))
 		&& (abs(right_motor_get_pos()) < fabs(angle*(STEP_ONE_TURN*TURN_MOTOR_CORRECTION/FULL_ANGLE_DEG)))) {
 	}
-	set_speed_motor(0);
+	set_speed_motor(STOP);
 }
 
 void motor_advance_half_epuck(void){
 
-	left_motor_set_pos(0);
-	right_motor_set_pos(0);
+	left_motor_set_pos(INITIAL_POS);
+	right_motor_set_pos(INITIAL_POS);
 
 	left_motor_set_speed(SPEED_MOTOR);
 	right_motor_set_speed(SPEED_MOTOR);
@@ -117,7 +117,7 @@ void motor_advance_half_epuck(void){
 	while ((abs(left_motor_get_pos()) < POSITION_FOR_HALF_EPUCK)
 		&& (abs(right_motor_get_pos()) < POSITION_FOR_HALF_EPUCK)) {
 	}
-	set_speed_motor(0);
+	set_speed_motor(STOP);
 }
 
 void turn_and_move(int8_t side)
