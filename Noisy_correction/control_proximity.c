@@ -4,7 +4,7 @@
 #include "leds.h"
 
 //=============================GLOBAL VARIABLES=============================
-uint8_t active_detection=OFF;
+uint8_t activ_detection=OFF;
 //=============================END GLOBAL VARIABLES=============================
 
 //============================THREADS=============================
@@ -19,20 +19,20 @@ static THD_FUNCTION(ThdDetection, arg) {
     while(1){
     	  if (find_obstacle())
     	  {
-    		  active_detection=ON;
+    		  activ_detection=ON;
     	  }
-        messagebus_topic_wait();
+//        messagebus_topic_wait();
+    	  chThdSleepMilliseconds(1000);
     }
-}
-
-void detection_start(void)
-{
-	chThdCreateStatic(waThdDetection, sizeof(waThdDetection), NORMALPRIO+1, ThdDetection, NULL);
-
 }
 //============================END THREADS=============================
 
 //=============================EXTERNAL FUNCTIONS=============================
+
+void detection_proximity_start(void)
+{
+	chThdCreateStatic(waThdDetection, sizeof(waThdDetection), NORMALPRIO+1, ThdDetection, NULL);
+}
 
 void control_led_motor(void) //mettre dans partie dans partie de Romain
 {

@@ -1,12 +1,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "ch.h"
 #include "hal.h"
 #include "memory_protection.h"
 #include <usbcfg.h>
 #include <main.h>
 #include <motors.h>
+#include <sensors/proximity.h>
 #include <chprintf.h>
 #include <control_proximity.h>
 #include <i2c_bus.h>
@@ -54,8 +54,10 @@ int main(void)
 	//inits the captor of proximity
 	proximity_start();
 
+	//inits thread
+	detection_proximity_start();
     while (1) {
-    	control_led_motor();
+//    	control_led_motor();
     }
 }
 

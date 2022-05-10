@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <sensors/proximity.h>
 #include <avoid_obstacle.h>
 #include <math.h>
 #include "motors.h"
@@ -88,7 +89,7 @@ void turn_adaptation(int8_t side)
 	set_speed_motor(0);
 }
 
-void motor_turn(float angle, int8_t side)
+void motor_turn(uint8_t angle, int8_t side)
 {
 	left_motor_set_pos(0);
 	right_motor_set_pos(0);
@@ -98,8 +99,8 @@ void motor_turn(float angle, int8_t side)
 	right_motor_set_speed(-side*SPEED_MOTOR);
 
 	// Turns until the angle is reached
-	while ((abs(left_motor_get_pos()) < fabs((angle/FULL_ANGLE_DEG)*STEP_ONE_TURN*TURN_MOTOR_CORRECTION))
-		&& (abs(right_motor_get_pos()) < fabs((angle/FULL_ANGLE_DEG)*STEP_ONE_TURN*TURN_MOTOR_CORRECTION))) {
+	while ((abs(left_motor_get_pos()) < fabs(angle*(STEP_ONE_TURN*TURN_MOTOR_CORRECTION/FULL_ANGLE_DEG)))
+		&& (abs(right_motor_get_pos()) < fabs(angle*(STEP_ONE_TURN*TURN_MOTOR_CORRECTION/FULL_ANGLE_DEG)))) {
 	}
 	set_speed_motor(0);
 }
