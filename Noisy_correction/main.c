@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -38,8 +37,6 @@ int main(void)
 
     //starts the serial communication
     serial_start();
-    //starts the USB communication
-    usb_start();
     //inits the motors
     motors_init();
     //begin audio processing

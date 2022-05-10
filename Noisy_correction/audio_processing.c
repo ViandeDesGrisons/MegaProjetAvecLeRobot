@@ -47,7 +47,7 @@ void find_sound(float* dataLeft, float* dataLeft_cmplx, float* dataRight_cmplx, 
 	static float Back_Phase = 0;
 	static uint8_t old_state = 0;
 
-	//search for the highest peak of the Left, Right, Front and Back mic
+	//search for the highest peak of the Left mic
 	for(uint16_t i = MIN_FREQ ; i <= MAX_FREQ ; i++){
 		if(dataLeft[i] > max_norm){
 			max_norm = dataLeft[i];
@@ -90,7 +90,7 @@ void find_sound(float* dataLeft, float* dataLeft_cmplx, float* dataRight_cmplx, 
 				Left_Phase = Left_Phase - 2*PI;
 				}
 
-			//if the sound is coming from the left, turn left
+			//if the sound is coming from the left, turn
 			if(Left_Phase < Right_Phase - PHASE_THRESHOLD){
 				left_motor_set_speed(-300);
 				right_motor_set_speed(300);
@@ -186,7 +186,6 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 	*/
 
 	static uint16_t nb_samples = 0;
-	static uint8_t mustSend = 0;
 
 	//loop to fill the buffers
 	for(uint16_t i = 0 ; i < num_samples ; i+=4){
@@ -235,15 +234,7 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 		arm_cmplx_mag_f32(micFront_cmplx_input, micFront_output, FFT_SIZE);
 		arm_cmplx_mag_f32(micBack_cmplx_input, micBack_output, FFT_SIZE);
 
-		//sends only one FFT result over 10 for 1 mic to not flood the computer
-		//sends to UART3
-		if(mustSend > 8){
-			//signals to send the result to the computer
-			chBSemSignal(&sendToComputer_sem);
-			mustSend = 0;
-		}
 		nb_samples = 0;
-		mustSend++;
 
 		//sound_remote(micLeft_output);
 		find_sound(micLeft_output, micLeft_cmplx_input, micRight_cmplx_input, micFront_cmplx_input, micBack_cmplx_input);
