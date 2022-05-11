@@ -28,7 +28,6 @@ static THD_FUNCTION(ThdDetection, arg) {
 //============================END THREADS=============================
 
 //=============================EXTERNAL FUNCTIONS=============================
-
 void detection_proximity_start(void)
 {
 	chThdCreateStatic(waThdDetection, sizeof(waThdDetection), NORMALPRIO+1, ThdDetection, NULL);
@@ -44,7 +43,6 @@ void control_led_motor(void) //mettre dans partie dans partie de Romain
 		avoid_obstacle();
 	}
 	clear_leds();
-	set_speed_motor(0);
+	set_speed_motor(STOP);
 }
-
 //=============================END EXTERNAL FUNCTIONS=============================
