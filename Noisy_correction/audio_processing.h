@@ -5,13 +5,13 @@
 #define FFT_SIZE 	1024
 #define MIN_VALUE_THRESHOLD	10000
 #define PI 					3.14
-#define MIN_FREQ			10	//we don't analyze before this index to not use resources for nothing
-#define FREQ_LEFT			26	//406Hz
-#define MAX_FREQ			30	//we don't analyze after this index to not use resources for nothing
-#define FREQ_LEFT_L			(FREQ_LEFT-1)
-#define FREQ_LEFT_H			(FREQ_LEFT+1)
-#define PHASE_THRESHOLD		0.3 //à modifier
-#define MODULO_THRESHOLD	PI/2
+#define MIN_FREQ			10		//we don't analyze before this index to not use resources for nothing
+#define FREQ			26			//406Hz
+#define MAX_FREQ			30		//we don't analyze after this index to not use resources for nothing
+#define FREQ_L			(FREQ-1)
+#define FREQ_H			(FREQ+1)
+#define PHASE_THRESHOLD		0.3 	//The robot don't turn if the sound is close from the middle
+#define MODULO_THRESHOLD	PI/2	//The phase is modulo 2*pi
 #define SPEED_TURN			300
 #define SPEED_FORWARD		600
 
