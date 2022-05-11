@@ -11,6 +11,11 @@
 #include <control_proximity.h>
 #include <i2c_bus.h>
 #include <msgbus/messagebus.h>
+#include <audio/microphone.h>
+#include <audio_processing.h>
+#include <fft.h>
+#include <communications.h>
+#include <arm_math.h>
 
 #define STACK_CHK_GUARD 0xe2dee396
 
@@ -37,29 +42,30 @@ static void serial_start(void)
 	sdStart(&SD3, &ser_cfg); // UART3.
 }
 
+
 int main(void)
 {
-
     halInit();
     chSysInit();
     mpu_init();
 
-	/* Inits the Inter Process Communication bus. */
-	messagebus_init(&bus, &bus_lock, &bus_condvar);
+    // Inits the Inter Process Communication bus.
+    messagebus_init(&bus, &bus_lock, &bus_condvar);
 
     //starts the serial communication
     serial_start();
-	//inits the motors
-	motors_init();
-	//inits the captor of proximity
-	proximity_start();
+    //inits the motors
+    motors_init();
+    //begin audio processing
+    mic_start(&processAudioData);
 
-	//inits thread
-	detection_proximity_start();
+    //inits the captor of proximity
+    proximity_start();
+
+    //inits thread
+    detection_proximity_start();
     while (1) {
-//    	control_led_motor();
+//		control_led_motor();
     }
 }
-
-
 
