@@ -21,8 +21,8 @@ static THD_FUNCTION(ThdDetection, arg) {
     	  {
     		  activ_detection=ON;
     	  }
-//        messagebus_topic_wait();
-    	  chThdSleepMilliseconds(1000);
+//    	  messagebus_topic_wait();
+    	  chThdSleepMilliseconds(500);
     }
 }
 //============================END THREADS=============================
@@ -44,5 +44,6 @@ void control_led_motor(void) //mettre dans partie dans partie de Romain
 	}
 	clear_leds();
 	set_speed_motor(STOP);
+	activ_detection=OFF;
 }
 //=============================END EXTERNAL FUNCTIONS=============================

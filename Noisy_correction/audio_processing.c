@@ -10,6 +10,7 @@
 #include <communications.h>
 #include <fft.h>
 #include <arm_math.h>
+#include <control_proximity.h>
 
 //semaphore
 static BSEMAPHORE_DECL(sendToComputer_sem, TRUE);
@@ -174,6 +175,11 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 	*
 	*/
 
+	if (activ_detection)
+	{
+		set_body_led(0);
+		control_led_motor();
+	}
 	static uint16_t nb_samples = 0;
 
 	//loop to fill the buffers

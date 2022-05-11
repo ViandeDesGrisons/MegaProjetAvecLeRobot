@@ -5,7 +5,6 @@
 #include "motors.h"
 
 //=============================INTERNAL FUNCTIONS=============================
-
 uint8_t verify_front(void)
 {
 	if (get_prox(SENSOR_IR1) > DETECTION_DISTANCE ||
