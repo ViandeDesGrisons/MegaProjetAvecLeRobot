@@ -12,6 +12,8 @@
 #define FREQ_LEFT_H			(FREQ_LEFT+1)
 #define PHASE_THRESHOLD		0.3 //à modifier
 #define MODULO_THRESHOLD	PI/2
+#define SPEED_TURN			300
+#define SPEED_FORWARD		600
 
 typedef enum {
 	//2 times FFT_SIZE because these arrays contain complex numbers (real + imaginary)

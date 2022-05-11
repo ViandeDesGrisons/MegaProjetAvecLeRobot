@@ -23,7 +23,7 @@ static float micBack_cmplx_input[2 * FFT_SIZE];
 static float micLeft_output[FFT_SIZE];
 static float micRight_output[FFT_SIZE];
 static float micFront_output[FFT_SIZE];
-static float micBack_output[FFT_SIZE];s
+static float micBack_output[FFT_SIZE];
 
 void find_sound(float* dataLeft, float* dataLeft_cmplx, float* dataRight_cmplx, float* dataFront_cmplx, float* dataBack_cmplx){
 
@@ -81,16 +81,16 @@ void find_sound(float* dataLeft, float* dataLeft_cmplx, float* dataRight_cmplx, 
 
 			//if the sound is coming from the left, turn
 			if(Left_Phase < Right_Phase - PHASE_THRESHOLD){
-				left_motor_set_speed(-300);
-				right_motor_set_speed(300);
+				left_motor_set_speed(-SPEED_TURN);
+				right_motor_set_speed(SPEED_TURN);
 				old_state = 3;
 				set_body_led(1);
 			}
 
 			//if the sound is coming from the right, turn right
 			if(Right_Phase < Left_Phase - PHASE_THRESHOLD){
-				left_motor_set_speed(300);
-				right_motor_set_speed(-300);
+				left_motor_set_speed(SPEED_TURN);
+				right_motor_set_speed(-SPEED_TURN);
 				old_state = 4;
 				set_body_led(1);
 			}
@@ -106,15 +106,15 @@ void find_sound(float* dataLeft, float* dataLeft_cmplx, float* dataRight_cmplx, 
 					}
 
 				if(Front_Phase < Back_Phase - PHASE_THRESHOLD){
-					left_motor_set_speed(600);
-					right_motor_set_speed(600);
+					left_motor_set_speed(SPEED_FORWARD);
+					right_motor_set_speed(SPEED_FORWARD);
 					old_state = 1;
 					set_body_led(1);
 				}
 
 				if(Back_Phase < Front_Phase - PHASE_THRESHOLD){
-					left_motor_set_speed(-600);
-					right_motor_set_speed(-600);
+					left_motor_set_speed(-SPEED_FORWARD);
+					right_motor_set_speed(-SPEED_FORWARD);
 					old_state = 2;
 					set_body_led(1);
 				}
@@ -129,20 +129,20 @@ void find_sound(float* dataLeft, float* dataLeft_cmplx, float* dataRight_cmplx, 
 				right_motor_set_speed(0);
 			}
 			if(old_state == 1){
-				left_motor_set_speed(600);
-				right_motor_set_speed(600);
+				left_motor_set_speed(SPEED_FORWARD);
+				right_motor_set_speed(SPEED_FORWARD);
 			}
 			if(old_state == 2){
-				left_motor_set_speed(-600);
-				right_motor_set_speed(-600);
+				left_motor_set_speed(-SPEED_FORWARD);
+				right_motor_set_speed(-SPEED_FORWARD);
 			}
 			if(old_state == 3){
-				left_motor_set_speed(-300);
-				right_motor_set_speed(300);
+				left_motor_set_speed(-SPEED_TURN);
+				right_motor_set_speed(SPEED_TURN);
 			}
 			if(old_state == 4){
-				left_motor_set_speed(300);
-				right_motor_set_speed(-300);
+				left_motor_set_speed(SPEED_TURN);
+				right_motor_set_speed(-SPEED_TURN);
 			}
 		}
 	}else{
