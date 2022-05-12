@@ -95,6 +95,11 @@ void find_sound(float* dataLeft, float* dataLeft_cmplx, float* dataRight_cmplx, 
 		float back_temp = Back_Phase/average_index;
 		average_index = 0;			//average index is reset to 0 to do the re do the average.
 
+		if(max_norm_index >= FREQ_L && max_norm_index <= FREQ_H){
+			chprintf((BaseSequentialStream *)&SD3, "Left: %f \n", Left_Phase);
+			chprintf((BaseSequentialStream *)&SD3, "Right: %f \n", Right_Phase);
+		}
+
 		//We want to take into account the fact that the phase is modulo 2*pi.
 		if((Right_Phase - Left_Phase) >= MODULO_THRESHOLD){
 			Right_Phase = Right_Phase - 2*PI;
@@ -116,8 +121,6 @@ void find_sound(float* dataLeft, float* dataLeft_cmplx, float* dataRight_cmplx, 
 		}else{
 			Back_Phase = back_temp;
 		}
-		chprintf((BaseSequentialStream *)&SD3, "Left: %f \n", Left_Phase);
-		chprintf((BaseSequentialStream *)&SD3, "Right: %f \n", Right_Phase);
 	}
 	average_index++;
 }
