@@ -64,18 +64,18 @@ void turn_adaptation(int8_t side)
 		{
 			//turn until the wheels will be parallel to the obstacle
 			while(!verify_left()){
-				chThdSleepMilliseconds(100);
+				chThdSleepMilliseconds(50);
 			}
 		}else{
 			//same but at beginning there is already something in his left side
 			while(!verify_back()){
-				chThdSleepMilliseconds(100);
+				chThdSleepMilliseconds(50);
 			}
 		}
 	}else{
 		//turn on the right side because there is something in his left side
 		while(!verify_back()){
-			chThdSleepMilliseconds(100);
+			chThdSleepMilliseconds(50);
 		}
 	}
 	//correction factor because he don't finish to turn
@@ -131,7 +131,7 @@ void turn_and_move(int8_t side)
 			}else{ //until obstacle is in his left side and there is nothing in front, he advances
 				set_speed_motor(SPEED_MOTOR);
 			}
-			chThdSleepMilliseconds(200);
+			chThdSleepMilliseconds(50);
 		}
 	}else{ //side==LEFT
 		while (verify_right()){
@@ -141,11 +141,12 @@ void turn_and_move(int8_t side)
 			}else{ //until obstacle is in his right side and there is nothing in front, he advances
 				set_speed_motor(SPEED_MOTOR);
 			}
-			chThdSleepMilliseconds(200);
+			chThdSleepMilliseconds(50);
 		}
 	}
 	motor_advance_half_epuck();
 	motor_turn(QUARTER_TURN_DEG, -side);
+	motor_advance_half_epuck();
 	if (side==RIGHT)
 	{
 		while (verify_left() || verify_diag_left()){
@@ -155,7 +156,7 @@ void turn_and_move(int8_t side)
 			}else{ //until obstacle is in his left side and there is nothing in front, he advances
 				set_speed_motor(SPEED_MOTOR);
 			}
-			chThdSleepMilliseconds(200);
+			chThdSleepMilliseconds(50);
 		}
 	}else{
 		while (verify_right() || verify_diag_right()){
@@ -165,7 +166,7 @@ void turn_and_move(int8_t side)
 			}else{ //until obstacle is in his right side and there is nothing in front, he advances
 				set_speed_motor(SPEED_MOTOR);
 			}
-			chThdSleepMilliseconds(200);
+			chThdSleepMilliseconds(50);
 		}
 	}
 }

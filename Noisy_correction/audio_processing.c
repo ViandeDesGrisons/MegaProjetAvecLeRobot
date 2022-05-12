@@ -10,6 +10,7 @@
 #include <fft.h>
 #include <arm_math.h>
 #include <control_proximity.h>
+#include <chprintf.h>
 
 //=============================SEMAPHORE=============================
 static BSEMAPHORE_DECL(sendToComputer_sem, TRUE);
@@ -88,26 +89,35 @@ void find_sound(float* dataLeft, float* dataLeft_cmplx, float* dataRight_cmplx, 
 	Back_Phase = Back_Phase + atan2(max_Back_im, max_Back_real);
 
 	if(average_index > 2){			//We do the average only if average index = 2
-
-		Left_Phase = Left_Phase/average_index;
-		Right_Phase = Right_Phase/average_index;
-		Front_Phase = Front_Phase/average_index;
-		Back_Phase = Back_Phase/average_index;
+		float left_temp = Left_Phase/average_index;
+		float right_temp = Right_Phase/average_index;
+		float front_temp= Front_Phase/average_index;
+		float back_temp = Back_Phase/average_index;
 		average_index = 0;			//average index is reset to 0 to do the re do the average.
 
 		//We want to take into account the fact that the phase is modulo 2*pi.
 		if((Right_Phase - Left_Phase) >= MODULO_THRESHOLD){
 			Right_Phase = Right_Phase - 2*PI;
+		}else{
+			Right_Phase = right_temp;
 		}
 		if((Left_Phase - Right_Phase) >= MODULO_THRESHOLD){
 			Left_Phase = Left_Phase - 2*PI;
+		}else{
+			Left_Phase = left_temp;
 		}
 		if((Front_Phase - Back_Phase) >= MODULO_THRESHOLD){
 			Front_Phase = Front_Phase - 2*PI;
+		}else{
+			Front_Phase = front_temp;
 		}
 		if((Back_Phase - Front_Phase) >= MODULO_THRESHOLD){
 			Back_Phase = Back_Phase - 2*PI;
+		}else{
+			Back_Phase = back_temp;
 		}
+		chprintf((BaseSequentialStream *)&SD3, "Left: %f \n", Left_Phase);
+		chprintf((BaseSequentialStream *)&SD3, "Right: %f \n", Right_Phase);
 	}
 	average_index++;
 }

@@ -11,7 +11,7 @@
 #define FREQ_L			(FREQ-1)
 #define FREQ_H			(FREQ+1)
 #define PHASE_THRESHOLD		0.3 	//The robot don't turn if the sound is close from the middle
-#define MODULO_THRESHOLD	PI/2	//The phase is modulo 2*pi
+#define MODULO_THRESHOLD	1	//The phase is modulo 2*pi
 #define SPEED_TURN			300
 #define SPEED_FORWARD		600
 

@@ -35,7 +35,7 @@ static THD_FUNCTION(ThdDetection, arg) {
 //    	  messagebus_topic_wait();
 //    	  chprintf((BaseSequentialStream *)&SD3, "dans le thread ");
 //    	  messagebus_topic_wait(proximity_topic, &proximity_values, sizeof(proximity_values));
-    	  chThdSleepMilliseconds(100);
+    	  chThdSleepMilliseconds(50);
     }
 }
 //============================END THREADS=============================
