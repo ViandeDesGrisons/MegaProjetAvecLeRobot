@@ -14,6 +14,17 @@
 //=============================SEMAPHORE=============================
 static BSEMAPHORE_DECL(sendToComputer_sem, TRUE);
 
+//=============================STRUCTURE=============================
+//struct Phases{
+//	float Left;
+//	float Right;
+//	float Front;
+//	float Back;
+//};
+//=============================END OF STRUCUTRE=============================
+
+//struct Phases phase;
+
 //=============================STATIC GLOBAL VARIABLES=============================
 //2 times FFT_SIZE because these arrays contain complex numbers (real + imaginary)
 static float micLeft_cmplx_input[2 * FFT_SIZE];
@@ -26,7 +37,13 @@ static float micRight_output[FFT_SIZE];
 static float micFront_output[FFT_SIZE];
 static float micBack_output[FFT_SIZE];
 //=============================END OF STATIC GLOBAL VARIABLES=============================
-
+float Left_Phase = 0;
+float Right_Phase = 0;
+float Front_Phase = 0;
+float Back_Phase = 0;
+uint8_t average_index = 0;
+int16_t max_norm_index = -1;
+uint8_t old_state = 0;		//used to conserve the old value of the motors.
 
 //=============================INTERNAL FUNCTIONS=============================
 /*	params :
@@ -43,15 +60,8 @@ static float micBack_output[FFT_SIZE];
 void find_sound(float* dataLeft, float* dataLeft_cmplx, float* dataRight_cmplx, float* dataFront_cmplx, float* dataBack_cmplx){
 
 	float max_norm = MIN_VALUE_THRESHOLD;
-	int16_t max_norm_index = -1;
 	//static because we need to keep the values in order to compute an average
 	//If average index = 2, we do the average. Else, the motors keep their old value.
-	static uint8_t average_index = 0;
-	static float Left_Phase = 0;
-	static float Right_Phase = 0;
-	static float Front_Phase = 0;
-	static float Back_Phase = 0;
-	static uint8_t old_state = 0;		//used to conserve the old value of the motors.
 
 	//search for the highest peak of the Left mic
 	for(uint16_t i = MIN_FREQ ; i <= MAX_FREQ ; i++){
@@ -77,102 +87,27 @@ void find_sound(float* dataLeft, float* dataLeft_cmplx, float* dataRight_cmplx, 
 	Front_Phase = Front_Phase + atan2(max_Front_im, max_Front_real);
 	Back_Phase = Back_Phase + atan2(max_Back_im, max_Back_real);
 
-	//move the robot if the max frequency detected is close to FREQ (406 Hz)
-	if(max_norm_index >= FREQ_L && max_norm_index <= FREQ_H){
+	if(average_index > 2){			//We do the average only if average index = 2
 
-		if(average_index > 2){			//We do the average only if average index = 2
+		Left_Phase = Left_Phase/average_index;
+		Right_Phase = Right_Phase/average_index;
+		Front_Phase = Front_Phase/average_index;
+		Back_Phase = Back_Phase/average_index;
+		average_index = 0;			//average index is reset to 0 to do the re do the average.
 
-			Left_Phase = Left_Phase/average_index;
-			Right_Phase = Right_Phase/average_index;
-			Front_Phase = Front_Phase/average_index;
-			Back_Phase = Back_Phase/average_index;
-			average_index = 0;			//average index is reset to 0 to do the re do the average.
-
-			//We want to take into account the fact that the phase is modulo 2*pi.
-			if((Right_Phase - Left_Phase) >= MODULO_THRESHOLD){
-				Right_Phase = Right_Phase - 2*PI;
-				}
-			if((Left_Phase - Right_Phase) >= MODULO_THRESHOLD){
-				Left_Phase = Left_Phase - 2*PI;
-				}
-
-			//if the sound is coming from the left, turn right
-			if(Left_Phase < Right_Phase - PHASE_THRESHOLD){
-				left_motor_set_speed(-SPEED_TURN);
-				right_motor_set_speed(SPEED_TURN);
-				old_state = 3;				//to set the old state
-				set_body_led(1);			//to turn on the body led when the robot is moving
-			}
-
-			//if the sound is coming from the right, turn left
-			if(Right_Phase < Left_Phase - PHASE_THRESHOLD){
-				left_motor_set_speed(SPEED_TURN);
-				right_motor_set_speed(-SPEED_TURN);
-				old_state = 4;				//to set the old state
-				set_body_led(1);			//to turn on the body led when the robot is moving
-			}
-
-			//if the robot is centered, go frontward or backward depending from where the sound is coming
-			if(fabs(Right_Phase - Left_Phase) <= PHASE_THRESHOLD){
-
-				//We want to take into account the fact that the phase is modulo 2*pi.
-				if((Front_Phase - Back_Phase) >= MODULO_THRESHOLD){
-					Front_Phase = Front_Phase - 2*PI;
-					}
-				if((Back_Phase - Front_Phase) >= MODULO_THRESHOLD){
-					Back_Phase = Back_Phase - 2*PI;
-					}
-
-				if(Front_Phase < Back_Phase - PHASE_THRESHOLD){
-					left_motor_set_speed(SPEED_FORWARD);
-					right_motor_set_speed(SPEED_FORWARD);
-					old_state = 1;			//to set the old state
-					set_body_led(1);		//to turn on the body led when the robot is moving
-				}
-
-				if(Back_Phase < Front_Phase - PHASE_THRESHOLD){
-					left_motor_set_speed(-SPEED_FORWARD);
-					right_motor_set_speed(-SPEED_FORWARD);
-					old_state = 2;			//to set the old state
-					set_body_led(1);		//to turn on the body led when the robot is moving
-				}
-			}
-			//When the average is done, reset the phases.
-			Left_Phase = 0;
-			Right_Phase = 0;
-			Front_Phase = 0;
-			Back_Phase = 0;
-
-		//If we don't do the average, we keep the old values of the motors
-		}else{
-			if(old_state == 0){
-				left_motor_set_speed(0);
-				right_motor_set_speed(0);
-			}
-			if(old_state == 1){
-				left_motor_set_speed(SPEED_FORWARD);
-				right_motor_set_speed(SPEED_FORWARD);
-			}
-			if(old_state == 2){
-				left_motor_set_speed(-SPEED_FORWARD);
-				right_motor_set_speed(-SPEED_FORWARD);
-			}
-			if(old_state == 3){
-				left_motor_set_speed(-SPEED_TURN);
-				right_motor_set_speed(SPEED_TURN);
-			}
-			if(old_state == 4){
-				left_motor_set_speed(SPEED_TURN);
-				right_motor_set_speed(-SPEED_TURN);
-			}
+		//We want to take into account the fact that the phase is modulo 2*pi.
+		if((Right_Phase - Left_Phase) >= MODULO_THRESHOLD){
+			Right_Phase = Right_Phase - 2*PI;
 		}
-
-	//If the max frequency detected is not close to FREQ, the robot is not moving
-	}else{
-		left_motor_set_speed(0);
-		right_motor_set_speed(0);
-		old_state = 0;
-		set_body_led(0);
+		if((Left_Phase - Right_Phase) >= MODULO_THRESHOLD){
+			Left_Phase = Left_Phase - 2*PI;
+		}
+		if((Front_Phase - Back_Phase) >= MODULO_THRESHOLD){
+			Front_Phase = Front_Phase - 2*PI;
+		}
+		if((Back_Phase - Front_Phase) >= MODULO_THRESHOLD){
+			Back_Phase = Back_Phase - 2*PI;
+		}
 	}
 	average_index++;
 }
@@ -198,11 +133,11 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 	*
 	*/
 
-	if (activ_detection)
-	{
-		set_body_led(0);
-		control_led_motor();
-	}
+//	if (activ_detection)
+//	{
+//		set_body_led(0);
+//		control_led_motor();
+//	}
 	static uint16_t nb_samples = 0;
 
 	//loop to fill the buffers

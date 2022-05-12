@@ -83,6 +83,7 @@ void turn_adaptation(int8_t side)
 	right_motor_set_pos(INITIAL_POS);
 	while ((abs(left_motor_get_pos()) < TURN_ADAPTATION_CORRECTION)
 		&& (abs(right_motor_get_pos()) < TURN_ADAPTATION_CORRECTION)) {
+
 	}
 	set_speed_motor(STOP);
 }

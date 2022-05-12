@@ -27,7 +27,14 @@ typedef enum {
 	FRONT_OUTPUT,
 	BACK_OUTPUT
 } BUFFER_NAME_t;
-extern uint8_t activ_detection;
+
+extern float Left_Phase;
+extern float Right_Phase;
+extern float Front_Phase;
+extern float Back_Phase;
+extern uint8_t average_index;
+extern int16_t max_norm_index;
+extern uint8_t old_state;		//used to conserve the old value of the motors.
 
 void processAudioData(int16_t *data, uint16_t num_samples);
 

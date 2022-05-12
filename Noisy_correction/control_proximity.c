@@ -49,15 +49,15 @@ void detection_proximity_start(void)
 void control_led_motor(void) //mettre dans partie dans partie de Romain
 {
 //	chprintf((BaseSequentialStream *)&SD3, "OUI ");
-	if (find_obstacle()) { //A ENLEVER
+//	if (find_obstacle()) { //A ENLEVER
 //		set_led(LED1, ON);
 		set_led(LED3, ON);
 		set_led(LED5, ON);
 		set_led(LED7, ON);
 
 		avoid_obstacle();
-		chprintf((BaseSequentialStream *)&SD3, "dans controle led motor ");
-	}
+//		chprintf((BaseSequentialStream *)&SD3, "dans controle led motor ");
+//	}
 	clear_leds();
 	set_speed_motor(STOP);
 	activ_detection=OFF;
