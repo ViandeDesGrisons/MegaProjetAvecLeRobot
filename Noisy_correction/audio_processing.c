@@ -42,9 +42,7 @@ float Left_Phase = 0;
 float Right_Phase = 0;
 float Front_Phase = 0;
 float Back_Phase = 0;
-uint8_t average_index = 0;
 int16_t max_norm_index = -1;
-uint8_t old_state = 0;		//used to conserve the old value of the motors.
 
 //=============================INTERNAL FUNCTIONS=============================
 /*	params :
@@ -83,46 +81,24 @@ void find_sound(float* dataLeft, float* dataLeft_cmplx, float* dataRight_cmplx, 
 	float max_Back_im = dataBack_cmplx[2*max_norm_index + 1];
 
 	//Compute the phase of the mics to see from where the sound is coming
-	Left_Phase = Left_Phase + atan2(max_Left_im, max_Left_real);
-	Right_Phase = Right_Phase + atan2(max_Right_im, max_Right_real);
-	Front_Phase = Front_Phase + atan2(max_Front_im, max_Front_real);
-	Back_Phase = Back_Phase + atan2(max_Back_im, max_Back_real);
+	Left_Phase = atan2(max_Left_im, max_Left_real);
+	Right_Phase = atan2(max_Right_im, max_Right_real);
+	Front_Phase = atan2(max_Front_im, max_Front_real);
+	Back_Phase = atan2(max_Back_im, max_Back_real);
 
-	if(average_index > 2){			//We do the average only if average index = 2
-		float left_temp = Left_Phase/average_index;
-		float right_temp = Right_Phase/average_index;
-		float front_temp= Front_Phase/average_index;
-		float back_temp = Back_Phase/average_index;
-		average_index = 0;			//average index is reset to 0 to do the re do the average.
-
-		if(max_norm_index >= FREQ_L && max_norm_index <= FREQ_H){
-			chprintf((BaseSequentialStream *)&SD3, "Left: %f \n", Left_Phase);
-			chprintf((BaseSequentialStream *)&SD3, "Right: %f \n", Right_Phase);
-		}
-
-		//We want to take into account the fact that the phase is modulo 2*pi.
-		if((Right_Phase - Left_Phase) >= MODULO_THRESHOLD){
-			Right_Phase = Right_Phase - 2*PI;
-		}else{
-			Right_Phase = right_temp;
-		}
-		if((Left_Phase - Right_Phase) >= MODULO_THRESHOLD){
-			Left_Phase = Left_Phase - 2*PI;
-		}else{
-			Left_Phase = left_temp;
-		}
-		if((Front_Phase - Back_Phase) >= MODULO_THRESHOLD){
-			Front_Phase = Front_Phase - 2*PI;
-		}else{
-			Front_Phase = front_temp;
-		}
-		if((Back_Phase - Front_Phase) >= MODULO_THRESHOLD){
-			Back_Phase = Back_Phase - 2*PI;
-		}else{
-			Back_Phase = back_temp;
-		}
+	//We want to take into account the fact that the phase is modulo 2*pi.
+	if((Right_Phase - Left_Phase) >= MODULO_THRESHOLD){
+		Right_Phase = Right_Phase - 2*PI;
 	}
-	average_index++;
+	if((Left_Phase - Right_Phase) >= MODULO_THRESHOLD){
+		Left_Phase = Left_Phase - 2*PI;
+	}
+	if((Front_Phase - Back_Phase) >= MODULO_THRESHOLD){
+		Front_Phase = Front_Phase - 2*PI;
+	}
+	if((Back_Phase - Front_Phase) >= MODULO_THRESHOLD){
+		Back_Phase = Back_Phase - 2*PI;
+	}
 }
 //=============================END INTERNAL FUNCTIONS=============================
 
