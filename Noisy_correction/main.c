@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "ch.h"
 #include "hal.h"
 #include "memory_protection.h"
 #include <usbcfg.h>
@@ -52,6 +53,9 @@ int main(void)
     // Inits the Inter Process Communication bus.
     messagebus_init(&bus, &bus_lock, &bus_condvar);
 
+//    messagebus_topic_t *proximity_topic = messagebus_find_topic_blocking(&bus, "/proximity");
+//    proximity_msg_t proximity_values;
+
     //starts the serial communication
     serial_start();
     //inits the motors
@@ -62,10 +66,13 @@ int main(void)
     //inits the captor of proximity
     proximity_start();
 
+    calibrate_ir();
+
+    chThdSleepMilliseconds(2000);
     //inits thread
     detection_proximity_start();
+
     while (1) {
-//		control_led_motor();
     }
 }
 

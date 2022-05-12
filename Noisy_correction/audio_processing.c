@@ -2,7 +2,6 @@
 #include "hal.h"
 #include <main.h>
 #include <usbcfg.h>
-#include <chprintf.h>
 #include <leds.h>
 #include <motors.h>
 #include <audio/microphone.h>
@@ -12,7 +11,7 @@
 #include <arm_math.h>
 #include <control_proximity.h>
 
-//semaphore
+//=============================SEMAPHORE=============================
 static BSEMAPHORE_DECL(sendToComputer_sem, TRUE);
 
 //=============================STATIC GLOBAL VARIABLES=============================
@@ -30,7 +29,6 @@ static float micBack_output[FFT_SIZE];
 
 
 //=============================INTERNAL FUNCTIONS=============================
-
 /*	params :
 *	float* dataLeft				This buffer contain the magnitude of the FFT of the Left Microphone.
 *								It is used to find the max frequency in this micro (should be the
@@ -89,8 +87,6 @@ void find_sound(float* dataLeft, float* dataLeft_cmplx, float* dataRight_cmplx, 
 			Front_Phase = Front_Phase/average_index;
 			Back_Phase = Back_Phase/average_index;
 			average_index = 0;			//average index is reset to 0 to do the re do the average.
-			chprintf((BaseSequentialStream *)&SD3, "Front: %f \n", Front_Phase);
-			chprintf((BaseSequentialStream *)&SD3, "Back: %f \n", Back_Phase);
 
 			//We want to take into account the fact that the phase is modulo 2*pi.
 			if((Right_Phase - Left_Phase) >= MODULO_THRESHOLD){
@@ -180,11 +176,9 @@ void find_sound(float* dataLeft, float* dataLeft_cmplx, float* dataRight_cmplx, 
 	}
 	average_index++;
 }
-
 //=============================END INTERNAL FUNCTIONS=============================
 
 //=============================EXTERNAL FUNCTIONS=============================
-
 /*
 *	Callback called when the demodulation of the four microphones is done.
 *	We get 160 samples per mic every 10ms (16kHz)
@@ -297,5 +291,4 @@ float* get_audio_buffer_ptr(BUFFER_NAME_t name){
 		return NULL;
 	}
 }
-
 //=============================END EXTERNAL FUNCTIONS=============================
