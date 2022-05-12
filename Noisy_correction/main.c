@@ -81,81 +81,50 @@ int main(void)
     	switch(mode){
 
     	case(SOUND):
-
 			//move the robot if the max frequency detected is close to FREQ (406 Hz)
 			if(max_norm_index >= FREQ_L && max_norm_index <= FREQ_H){
 
-				if(average_index > 2){			//We do the average only if average index = 2
+				//if the sound is coming from the left, turn right
+				if(Left_Phase < Right_Phase - PHASE_THRESHOLD){
+					left_motor_set_speed(-SPEED_TURN);
+					right_motor_set_speed(SPEED_TURN);
+					set_body_led(1);			//to turn on the body led when the robot is moving
+				}
 
-					//if the sound is coming from the left, turn right
-					if(Left_Phase < Right_Phase - PHASE_THRESHOLD){
-						left_motor_set_speed(-SPEED_TURN);
-						right_motor_set_speed(SPEED_TURN);
-						old_state = 3;				//to set the old state
-						set_body_led(1);			//to turn on the body led when the robot is moving
-					}
+				//if the sound is coming from the right, turn left
+				if(Right_Phase < Left_Phase - PHASE_THRESHOLD){
+					left_motor_set_speed(SPEED_TURN);
+					right_motor_set_speed(-SPEED_TURN);
+					set_body_led(1);			//to turn on the body led when the robot is moving
+				}
 
-					//if the sound is coming from the right, turn left
-					if(Right_Phase < Left_Phase - PHASE_THRESHOLD){
-						left_motor_set_speed(SPEED_TURN);
-						right_motor_set_speed(-SPEED_TURN);
-						old_state = 4;				//to set the old state
-						set_body_led(1);			//to turn on the body led when the robot is moving
-					}
+				//if the robot is centered, go frontward or backward depending from where the sound is coming
+				if(fabs(Right_Phase - Left_Phase) <= PHASE_THRESHOLD){
 
-					//if the robot is centered, go frontward or backward depending from where the sound is coming
-					if(fabs(Right_Phase - Left_Phase) <= PHASE_THRESHOLD){
-
-						if(Front_Phase < Back_Phase - PHASE_THRESHOLD){
-							left_motor_set_speed(SPEED_FORWARD);
-							right_motor_set_speed(SPEED_FORWARD);
-							old_state = 1;			//to set the old state
-							set_body_led(1);		//to turn on the body led when the robot is moving
-						}
-
-						if(Back_Phase < Front_Phase - PHASE_THRESHOLD){
-							left_motor_set_speed(-SPEED_FORWARD);
-							right_motor_set_speed(-SPEED_FORWARD);
-							old_state = 2;			//to set the old state
-							set_body_led(1);		//to turn on the body led when the robot is moving
-						}
-					}
-
-					//When the average is done, reset the phases.
-					Left_Phase = 0;
-					Right_Phase = 0;
-					Front_Phase = 0;
-					Back_Phase = 0;
-
-				//If we don't do the average, we keep the old values of the motors
-				}else{
-					if(old_state == 0){
-						left_motor_set_speed(0);
-						right_motor_set_speed(0);
-					}
-					if(old_state == 1){
+					if(Front_Phase < Back_Phase - PHASE_THRESHOLD){
 						left_motor_set_speed(SPEED_FORWARD);
 						right_motor_set_speed(SPEED_FORWARD);
+						set_body_led(1);		//to turn on the body led when the robot is moving
 					}
-					if(old_state == 2){
+
+					if(Back_Phase < Front_Phase - PHASE_THRESHOLD){
 						left_motor_set_speed(-SPEED_FORWARD);
 						right_motor_set_speed(-SPEED_FORWARD);
-					}
-					if(old_state == 3){
-						left_motor_set_speed(-SPEED_TURN);
-						right_motor_set_speed(SPEED_TURN);
-					}
-					if(old_state == 4){
-						left_motor_set_speed(SPEED_TURN);
-						right_motor_set_speed(-SPEED_TURN);
+						set_body_led(1);		//to turn on the body led when the robot is moving
 					}
 				}
+
+				//When the average is done, reset the phases.
+				Left_Phase = 0;
+				Right_Phase = 0;
+				Front_Phase = 0;
+				Back_Phase = 0;
+
 
 			//If the max frequency detected is not close to FREQ, the robot is not moving
 			}else{
 				left_motor_set_speed(0);
 				right_motor_set_speed(0);
-				old_state = 0;
 				set_body_led(0);
 			}
 
@@ -171,7 +140,7 @@ int main(void)
 				mode=SOUND;
     			break;
     	}
-    	chThdSleepMilliseconds(100);
+    	chThdSleepMilliseconds(50);
     }
 }
 

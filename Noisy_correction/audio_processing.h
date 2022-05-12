@@ -6,13 +6,13 @@
 #define MIN_VALUE_THRESHOLD	10000
 #define PI 					3.14
 #define MIN_FREQ			10		//we don't analyze before this index to not use resources for nothing
-#define FREQ			26			//406Hz
+#define FREQ				26			//406Hz
 #define MAX_FREQ			30		//we don't analyze after this index to not use resources for nothing
 #define FREQ_L			(FREQ-1)
 #define FREQ_H			(FREQ+1)
 #define PHASE_THRESHOLD		0.3 	//The robot don't turn if the sound is close from the middle
 #define MODULO_THRESHOLD	1	//The phase is modulo 2*pi
-#define SPEED_TURN			300
+#define SPEED_TURN			600
 #define SPEED_FORWARD		600
 
 typedef enum {
@@ -32,9 +32,7 @@ extern float Left_Phase;
 extern float Right_Phase;
 extern float Front_Phase;
 extern float Back_Phase;
-extern uint8_t average_index;
 extern int16_t max_norm_index;
-extern uint8_t old_state;		//used to conserve the old value of the motors.
 
 void processAudioData(int16_t *data, uint16_t num_samples);
 
