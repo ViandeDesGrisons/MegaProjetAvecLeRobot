@@ -44,6 +44,8 @@
 #define HALF_TURN_DEG				180
 #define FULL_ANGLE_DEG				360
 
+#define TIME_SLEEP					50
+
 #define INITIAL_POS					0
 #define STOP						0
 

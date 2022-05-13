@@ -90,7 +90,7 @@ static THD_FUNCTION(ThdControl, arg) {
 				mode=SOUND;
     			break;
     	}
-    	chThdSleepMilliseconds(50);
+    	chThdSleepMilliseconds(TIME_SLEEP);
     }
 }
 /********************************END THREADS**************************************/

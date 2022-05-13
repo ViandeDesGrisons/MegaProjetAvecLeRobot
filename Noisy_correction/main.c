@@ -69,7 +69,7 @@ int main(void)
     calibrate_ir();
 
     //time to inits and calibrate all
-    chThdSleepMilliseconds(2000);
+    chThdSleepMilliseconds(TIME_INITS_CALIBRATION);
 
     //inits thread
     control_start();

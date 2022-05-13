@@ -9,6 +9,7 @@ extern "C" {
 #include "msgbus/messagebus.h"
 #include "parameter/parameter.h"
 
+#define TIME_INITS_CALIBRATION			2000
 
 /** Robot wide IPC bus. */
 extern messagebus_t bus;
