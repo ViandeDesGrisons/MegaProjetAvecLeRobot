@@ -9,15 +9,10 @@ extern "C" {
 #include "msgbus/messagebus.h"
 #include "parameter/parameter.h"
 
-#define SOUND		0
-#define OBSTACLE	1
 
 /** Robot wide IPC bus. */
 extern messagebus_t bus;
 extern parameter_namespace_t parameter_root;
-
-//extern struct Phases phase;
-
 
 #ifdef __cplusplus
 }

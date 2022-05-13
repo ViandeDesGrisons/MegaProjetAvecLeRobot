@@ -2,9 +2,11 @@
 #include <sensors/proximity.h>
 #include <avoid_obstacle.h>
 #include <math.h>
+#include <arm_math.h>
 #include "motors.h"
+#include "leds.h"
 
-//=============================INTERNAL FUNCTIONS=============================
+/***************************INTERNAL FUNCTIONS************************************/
 uint8_t verify_front(void)
 {
 	if (get_prox(SENSOR_IR1) > DETECTION_DISTANCE ||
@@ -170,9 +172,9 @@ void turn_and_move(int8_t side)
 		}
 	}
 }
-//=============================END INTERNAL FUNCTIONS=============================
+/*************************END INTERNAL FUNCTIONS**********************************/
 
-//=============================EXTERNAL FUNCTIONS=============================
+/****************************PUBLIC FUNCTIONS*************************************/
 uint8_t find_obstacle(void)
 {
 	if (verify_front() || verify_back()){
@@ -209,4 +211,15 @@ void avoid_obstacle(void)
 		}
 	}
 }
-//=============================END EXTERNAL FUNCTIONS=============================
+
+void control_motor_obstacle(void)
+{
+//	set_led(LED1, ON);
+	set_led(LED3, ON);
+	set_led(LED5, ON);
+	set_led(LED7, ON);
+	avoid_obstacle();
+	clear_leds();
+	set_speed_motor(STOP);
+}
+/**************************END PUBLIC FUNCTIONS***********************************/

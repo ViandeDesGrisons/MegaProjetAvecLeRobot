@@ -13,7 +13,7 @@ CSRC += ./main.c \
 		./audio_processing.c \
 		./communications.c \
 		./fft.c \
-		./control_proximity.c \
+		./control_sound_obstacle.c \
 		./avoid_obstacle.c \
 
 #Header folders to include

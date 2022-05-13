@@ -9,10 +9,10 @@
 #include <communications.h>
 #include <fft.h>
 #include <arm_math.h>
-#include <control_proximity.h>
 #include <chprintf.h>
+#include <control_sound_obstacle.h>
 
-//=============================SEMAPHORE=============================
+/**************************** SEMAPHORES *************************************/
 static BSEMAPHORE_DECL(sendToComputer_sem, TRUE);
 
 //=============================STRUCTURE=============================

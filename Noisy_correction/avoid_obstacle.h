@@ -3,8 +3,8 @@
 
 #define DETECTION_DISTANCE 			300
 #define DETECTION_DISTANCE_DIAGONAL 200
-#define SPEED_MOTOR       			250
 
+#define SPEED_MOTOR       			250
 
 #define SENSOR_IR1         			0
 #define SENSOR_IR2         			1
@@ -32,6 +32,9 @@
 #define TRUE               			1
 #define FALSE              			0
 
+#define ON          				1
+#define OFF         				0
+
 #define RIGHT			   			1 //turn in clockwise
 #define LEFT              		   -1 //turn in counterclockwise
 
@@ -50,5 +53,6 @@
 uint8_t find_obstacle(void);
 void set_speed_motor(uint8_t speed);
 void avoid_obstacle(void);
+void control_motor_obstacle(void);
 
 #endif /* AVOID_OBSTACLE_H_ */
