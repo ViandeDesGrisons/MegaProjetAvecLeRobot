@@ -4,7 +4,7 @@
 #define SOUND		0
 #define OBSTACLE	1
 
-#define OFF			0 //peut enlever
+#define OFF			0
 #define ON			1
 
 #define CLEAR		0

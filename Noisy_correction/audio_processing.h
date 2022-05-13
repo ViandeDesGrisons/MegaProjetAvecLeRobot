@@ -1,6 +1,7 @@
 #ifndef AUDIO_PROCESSING_H
 #define AUDIO_PROCESSING_H
 
+#include <hal.h>
 
 #define FFT_SIZE 	1024
 #define MIN_VALUE_THRESHOLD	10000

@@ -1,32 +1,15 @@
-#include "ch.h"
-#include "hal.h"
-#include <main.h>
-#include <usbcfg.h>
-#include <leds.h>
-#include <motors.h>
 #include <audio/microphone.h>
 #include <audio_processing.h>
-#include <communications.h>
-#include <fft.h>
 #include <arm_math.h>
-#include <chprintf.h>
-#include <control_sound_obstacle.h>
+#include "ch.h"
+#include <fft.h>
+#include "hal.h"
 
-/**************************** SEMAPHORES *************************************/
+/*******************************SEMAPHORES****************************************/
 static BSEMAPHORE_DECL(sendToComputer_sem, TRUE);
 
-//=============================STRUCTURE=============================
-//struct Phases{
-//	float Left;
-//	float Right;
-//	float Front;
-//	float Back;
-//};
-//=============================END OF STRUCUTRE=============================
 
-//struct Phases phase;
-
-//=============================STATIC GLOBAL VARIABLES=============================
+/*****************************STATIC VARIABLES************************************/
 //2 times FFT_SIZE because these arrays contain complex numbers (real + imaginary)
 static float micLeft_cmplx_input[2 * FFT_SIZE];
 static float micRight_cmplx_input[2 * FFT_SIZE];
@@ -37,14 +20,17 @@ static float micLeft_output[FFT_SIZE];
 static float micRight_output[FFT_SIZE];
 static float micFront_output[FFT_SIZE];
 static float micBack_output[FFT_SIZE];
-//=============================END OF STATIC GLOBAL VARIABLES=============================
+/****************************END STATIC VARIABLES*********************************/
+
+/*****************************GLOBAL VARIABLES************************************/
 float Left_Phase = 0;
 float Right_Phase = 0;
 float Front_Phase = 0;
 float Back_Phase = 0;
 int16_t max_norm_index = -1;
+/***************************END GLOBAL VARIABLES**********************************/
 
-//=============================INTERNAL FUNCTIONS=============================
+/***************************INTERNAL FUNCTIONS************************************/
 /*	params :
 *	float* dataLeft				This buffer contain the magnitude of the FFT of the Left Microphone.
 *								It is used to find the max frequency in this micro (should be the
@@ -70,7 +56,7 @@ void find_sound(float* dataLeft, float* dataLeft_cmplx, float* dataRight_cmplx, 
 		}
 	}
 
-	//find the real and im part of each mic in order to compute the phase
+	//find the real and imaginary part of each mic in order to compute the phase
 	float max_Left_real = dataLeft_cmplx[2*max_norm_index];
 	float max_Left_im = dataLeft_cmplx[2*max_norm_index + 1];
 	float max_Right_real = dataRight_cmplx[2*max_norm_index];
@@ -100,9 +86,9 @@ void find_sound(float* dataLeft, float* dataLeft_cmplx, float* dataRight_cmplx, 
 		Back_Phase = Back_Phase - 2*PI;
 	}
 }
-//=============================END INTERNAL FUNCTIONS=============================
+/*************************END INTERNAL FUNCTIONS**********************************/
 
-//=============================EXTERNAL FUNCTIONS=============================
+/****************************PUBLIC FUNCTIONS*************************************/
 /*
 *	Callback called when the demodulation of the four microphones is done.
 *	We get 160 samples per mic every 10ms (16kHz)
@@ -121,12 +107,6 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 	*	1024 samples, then we compute the FFTs.
 	*
 	*/
-
-//	if (activ_detection)
-//	{
-//		set_body_led(0);
-//		control_led_motor();
-//	}
 	static uint16_t nb_samples = 0;
 
 	//loop to fill the buffers
@@ -215,4 +195,4 @@ float* get_audio_buffer_ptr(BUFFER_NAME_t name){
 		return NULL;
 	}
 }
-//=============================END EXTERNAL FUNCTIONS=============================
+/**************************END PUBLIC FUNCTIONS***********************************/

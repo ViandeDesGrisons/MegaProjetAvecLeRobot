@@ -1,10 +1,7 @@
-#include <stdio.h>
-#include <sensors/proximity.h>
-#include <avoid_obstacle.h>
-#include <math.h>
 #include <arm_math.h>
+#include <avoid_obstacle.h>
 #include "motors.h"
-#include "leds.h"
+#include <sensors/proximity.h>
 
 /***************************INTERNAL FUNCTIONS************************************/
 uint8_t verify_front(void)
@@ -83,8 +80,8 @@ void turn_adaptation(int8_t side)
 	//correction factor because he don't finish to turn
 	left_motor_set_pos(INITIAL_POS);
 	right_motor_set_pos(INITIAL_POS);
-	while ((abs(left_motor_get_pos()) < TURN_ADAPTATION_CORRECTION)
-		&& (abs(right_motor_get_pos()) < TURN_ADAPTATION_CORRECTION)) {
+	while ((fabs(left_motor_get_pos()) < TURN_ADAPTATION_CORRECTION)
+		&& (fabs(right_motor_get_pos()) < TURN_ADAPTATION_CORRECTION)) {
 
 	}
 	set_speed_motor(STOP);
@@ -100,8 +97,8 @@ void motor_turn(uint8_t angle, int8_t side)
 	right_motor_set_speed(-side*SPEED_MOTOR);
 
 	// Turns until the angle is reached
-	while ((abs(left_motor_get_pos()) < fabs(angle*(STEP_ONE_TURN*TURN_MOTOR_CORRECTION/FULL_ANGLE_DEG)))
-		&& (abs(right_motor_get_pos()) < fabs(angle*(STEP_ONE_TURN*TURN_MOTOR_CORRECTION/FULL_ANGLE_DEG)))) {
+	while ((fabs(left_motor_get_pos()) < fabs(angle*(STEP_ONE_TURN*TURN_MOTOR_CORRECTION/FULL_ANGLE_DEG)))
+		&& (fabs(right_motor_get_pos()) < fabs(angle*(STEP_ONE_TURN*TURN_MOTOR_CORRECTION/FULL_ANGLE_DEG)))) {
 	}
 	set_speed_motor(STOP);
 }
@@ -115,8 +112,8 @@ void motor_advance_half_epuck(void){
 	right_motor_set_speed(SPEED_MOTOR);
 
 	// Advances until a distance of a half epuck passes
-	while ((abs(left_motor_get_pos()) < POSITION_FOR_HALF_EPUCK)
-		&& (abs(right_motor_get_pos()) < POSITION_FOR_HALF_EPUCK)) {
+	while ((fabs(left_motor_get_pos()) < POSITION_FOR_HALF_EPUCK)
+		&& (fabs(right_motor_get_pos()) < POSITION_FOR_HALF_EPUCK)) {
 	}
 	set_speed_motor(STOP);
 }
@@ -210,16 +207,5 @@ void avoid_obstacle(void)
 			turn_and_move(LEFT);
 		}
 	}
-}
-
-void control_motor_obstacle(void)
-{
-//	set_led(LED1, ON);
-	set_led(LED3, ON);
-	set_led(LED5, ON);
-	set_led(LED7, ON);
-	avoid_obstacle();
-	clear_leds();
-	set_speed_motor(STOP);
 }
 /**************************END PUBLIC FUNCTIONS***********************************/
