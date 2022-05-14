@@ -14,12 +14,12 @@
 //#include "ch.h"
 //#include <usbcfg.h>
 //#include <chprintf.h>
+//#include <avoid_obstacle.h>
 //#include <i2c_bus.h>
 //#include <msgbus/messagebus.h>
 //#include <fft.h>
 //#include <communications.h>
 //#include <arm_math.h>
-//#include <avoid_obstacle.h>
 //#include "leds.h"
 
 #define STACK_CHK_GUARD 0xe2dee396
@@ -75,6 +75,7 @@ int main(void)
     control_start();
 
     while (1) {
+    	chThdSleepMilliseconds(2000);
     }
 }
 

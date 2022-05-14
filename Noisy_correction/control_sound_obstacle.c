@@ -32,13 +32,13 @@ void control_motor_sound(void)
 			if(Front_Phase < Back_Phase - PHASE_THRESHOLD){
 				left_motor_set_speed(SPEED_FORWARD);
 				right_motor_set_speed(SPEED_FORWARD);
-				set_body_led(1);		//to turn on the body led when the robot is moving
+				set_body_led(ON);		//to turn on the body led when the robot is moving
 			}
 
 			if(Back_Phase < Front_Phase - PHASE_THRESHOLD){
 				left_motor_set_speed(-SPEED_FORWARD);
 				right_motor_set_speed(-SPEED_FORWARD);
-				set_body_led(1);		//to turn on the body led when the robot is moving
+				set_body_led(ON);		//to turn on the body led when the robot is moving
 			}
 		}
 		//When the average is done, reset the phases.
@@ -60,6 +60,7 @@ void control_motor_obstacle(void)
 	set_led(LED5, ON);
 	set_led(LED7, ON);
 	avoid_obstacle();
+
 	clear_leds();
 	set_speed_motor(STOP);
 }

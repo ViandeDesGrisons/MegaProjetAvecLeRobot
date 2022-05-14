@@ -37,7 +37,7 @@ uint8_t verify_left(void)
 	}
 	return FALSE;
 }
-//
+
 uint8_t verify_diag_left(void)
 {
 	if (get_prox(SENSOR_IR7) > DETECTION_DISTANCE_DIAGONAL) {
