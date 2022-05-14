@@ -56,6 +56,13 @@ uint8_t verify_diag_right(void)
 
 void turn_adaptation(int8_t side)
 {
+	uint16_t correction_factor;
+	if(!verify_left() && !verify_right())
+	{
+		correction_factor = TURN_ADAPTATION_CORRECTION_SIDE;
+	}else{
+		correction_factor = TURN_ADAPTATION_CORRECTION_BACK;
+	}
 	left_motor_set_speed(side*SPEED_MOTOR);
 	right_motor_set_speed(-side*SPEED_MOTOR);
 	if (side==RIGHT){
@@ -80,9 +87,9 @@ void turn_adaptation(int8_t side)
 	//correction factor because he don't finish to turn
 	left_motor_set_pos(INITIAL_POS);
 	right_motor_set_pos(INITIAL_POS);
-	while ((fabs(left_motor_get_pos()) < TURN_ADAPTATION_CORRECTION)
-		&& (fabs(right_motor_get_pos()) < TURN_ADAPTATION_CORRECTION)) {
-
+	while ((fabs(left_motor_get_pos()) < correction_factor)
+		&& (fabs(right_motor_get_pos()) < correction_factor)) {
+		chThdSleepMilliseconds(TIME_SLEEP);
 	}
 	set_speed_motor(STOP);
 }
@@ -99,6 +106,7 @@ void motor_turn(uint8_t angle, int8_t side)
 	// Turns until the angle is reached
 	while ((fabs(left_motor_get_pos()) < fabs(angle*(STEP_ONE_TURN*TURN_MOTOR_CORRECTION/FULL_ANGLE_DEG)))
 		&& (fabs(right_motor_get_pos()) < fabs(angle*(STEP_ONE_TURN*TURN_MOTOR_CORRECTION/FULL_ANGLE_DEG)))) {
+		chThdSleepMilliseconds(TIME_SLEEP);
 	}
 	set_speed_motor(STOP);
 }
@@ -114,33 +122,41 @@ void motor_advance_half_epuck(void){
 	// Advances until a distance of a half epuck passes
 	while ((fabs(left_motor_get_pos()) < POSITION_FOR_HALF_EPUCK)
 		&& (fabs(right_motor_get_pos()) < POSITION_FOR_HALF_EPUCK)) {
+		chThdSleepMilliseconds(TIME_SLEEP);
 	}
 	set_speed_motor(STOP);
 }
 
 void turn_and_move(int8_t side)
 {
+	set_speed_motor(STOP);
 	turn_adaptation(side);
 	if (side==RIGHT)
 	{
-		while (verify_left()){
-			if (verify_front()) //if there are several obstacles following
-			{
-				turn_and_move(side);
-			}else{ //until obstacle is in his left side and there is nothing in front, he advances
-				set_speed_motor(SPEED_MOTOR);
+		if (verify_left())
+		{
+			set_speed_motor(SPEED_MOTOR);
+			while (verify_left()){
+				if (verify_front()) 					//if there are several obstacles following
+				{
+					chThdSleepMilliseconds(TIME_SLEEP);
+					turn_and_move(side);
+				}
+				chThdSleepMilliseconds(TIME_SLEEP);
 			}
-			chThdSleepMilliseconds(TIME_SLEEP);
 		}
 	}else{ //side==LEFT
-		while (verify_right()){
-			if(verify_front()) //if there are several obstacles following
-			{
-				turn_and_move(side);
-			}else{ //until obstacle is in his right side and there is nothing in front, he advances
-				set_speed_motor(SPEED_MOTOR);
+		if(verify_right())
+		{
+			set_speed_motor(SPEED_MOTOR);
+			while (verify_right()){
+				if(verify_front()) 						//if there are several obstacles following
+				{
+					chThdSleepMilliseconds(TIME_SLEEP);
+					turn_and_move(side);
+				}
+				chThdSleepMilliseconds(TIME_SLEEP);		//until obstacle is in his right side and there is nothing in front, it advances
 			}
-			chThdSleepMilliseconds(TIME_SLEEP);
 		}
 	}
 	motor_advance_half_epuck();
@@ -148,24 +164,30 @@ void turn_and_move(int8_t side)
 	motor_advance_half_epuck();
 	if (side==RIGHT)
 	{
-		while (verify_left() || verify_diag_left()){
-			if (verify_front()) //if there are several obstacles following
-			{
-				turn_and_move(side);
-			}else{ //until obstacle is in his left side and there is nothing in front, he advances
-				set_speed_motor(SPEED_MOTOR);
+		if (verify_left() || verify_diag_left())
+		{
+			set_speed_motor(SPEED_MOTOR);
+			while (verify_left() || verify_diag_left()){
+				if (verify_front()) 					//if there are several obstacles following
+				{
+					chThdSleepMilliseconds(TIME_SLEEP);
+					turn_and_move(side);
+				}
+				chThdSleepMilliseconds(TIME_SLEEP);		//until obstacle is in his left side and there is nothing in front, it advances
 			}
-			chThdSleepMilliseconds(TIME_SLEEP);
 		}
 	}else{
-		while (verify_right() || verify_diag_right()){
-			if(verify_front()) //if there are several obstacles following
-			{
-				turn_and_move(side);
-			}else{ //until obstacle is in his right side and there is nothing in front, he advances
-				set_speed_motor(SPEED_MOTOR);
+		if (verify_right() || verify_diag_right())
+		{
+			set_speed_motor(SPEED_MOTOR);
+			while (verify_right() || verify_diag_right()){
+				if(verify_front()) 						//if there are several obstacles following
+				{
+					chThdSleepMilliseconds(TIME_SLEEP);
+					turn_and_move(side);
+				}
+				chThdSleepMilliseconds(TIME_SLEEP);		//until obstacle is in his right side and there is nothing in front, he advances
 			}
-			chThdSleepMilliseconds(TIME_SLEEP);
 		}
 	}
 }

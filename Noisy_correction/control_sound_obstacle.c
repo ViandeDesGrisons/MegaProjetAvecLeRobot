@@ -58,7 +58,7 @@ void control_motor_obstacle(void)
 	set_led(LED1, ON);
 	set_led(LED3, ON);
 	set_led(LED5, ON);
-	set_led(LED7, ON);
+//	set_led(LED7, ON);
 	avoid_obstacle();
 
 	clear_leds();
