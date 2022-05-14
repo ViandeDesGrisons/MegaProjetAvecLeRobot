@@ -75,7 +75,6 @@ int main(void)
     control_start();
 
     while (1) {
-    	chThdSleepMilliseconds(2000);
     }
 }
 

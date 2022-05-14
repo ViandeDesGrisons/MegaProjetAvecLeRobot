@@ -3,18 +3,25 @@
 
 #include <hal.h>
 
-#define FFT_SIZE 	1024
+#define FFT_SIZE 			1024
 #define MIN_VALUE_THRESHOLD	10000
 #define PI 					3.14
-#define MIN_FREQ			10		//we don't analyze before this index to not use resources for nothing
-#define FREQ				26			//406Hz
-#define MAX_FREQ			30		//we don't analyze after this index to not use resources for nothing
-#define FREQ_L			(FREQ-1)
-#define FREQ_H			(FREQ+1)
-#define PHASE_THRESHOLD		0.3 	//The robot don't turn if the sound is close from the middle
-#define MODULO_THRESHOLD	1	//The phase is modulo 2*pi
-#define SPEED_TURN			600
-#define SPEED_FORWARD		600
+#define MIN_FREQ			10			//we don't analyze before this index to not use resources for nothing
+#define MAX_FREQ			30			//we don't analyze after this index to not use resources for nothing*
+#define FREQ_1				16			//250Hz
+#define FREQ_1_L			(FREQ_1-1)
+#define FREQ_1_H			(FREQ_1+1)
+#define FREQ_2				19			//296Hz
+#define FREQ_2_L			(FREQ_2-1)
+#define FREQ_2_H			(FREQ_2+1)
+#define FREQ_3				23			//359Hz
+#define FREQ_3_L			(FREQ_3-1)
+#define FREQ_3_H			(FREQ_3+1)
+#define FREQ_4				26			//406Hz
+#define FREQ_4_L			(FREQ_4-1)
+#define FREQ_4_H			(FREQ_4+1)
+#define PHASE_THRESHOLD		0.3 		//The robot don't turn if the sound is close from the middle
+#define MODULO_THRESHOLD	1			//The phase is modulo 2*pi
 
 typedef enum {
 	//2 times FFT_SIZE because these arrays contain complex numbers (real + imaginary)

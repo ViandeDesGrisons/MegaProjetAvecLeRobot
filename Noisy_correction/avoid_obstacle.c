@@ -15,7 +15,7 @@ uint8_t verify_front(void)
 
 uint8_t verify_right(void)
 {
-	if (get_prox(SENSOR_IR3) > DETECTION_DISTANCE) {
+	if (get_prox(SENSOR_IR3) >  DETECTION_DISTANCE_SIDE) {
 		return TRUE;
 	}
 	return FALSE;
@@ -32,7 +32,7 @@ uint8_t verify_back(void)
 
 uint8_t verify_left(void)
 {
-	if (get_prox(SENSOR_IR6) > DETECTION_DISTANCE) {
+	if (get_prox(SENSOR_IR6) >  DETECTION_DISTANCE_SIDE) {
 		return TRUE;
 	}
 	return FALSE;
