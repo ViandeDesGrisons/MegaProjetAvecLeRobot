@@ -6,7 +6,7 @@
 #define FFT_SIZE 			1024
 #define MIN_VALUE_THRESHOLD	10000
 #define PI 					3.14
-#define MIN_FREQ			10			//we don't analyze before this index to not use resources for nothing
+#define MIN_FREQ			20			//we don't analyze before this index to not use resources for nothing
 #define MAX_FREQ			30			//we don't analyze after this index to not use resources for nothing*
 #define FREQ_1				16			//250Hz
 #define FREQ_1_L			(FREQ_1-1)

@@ -42,8 +42,6 @@ void find_sound(float* dataLeft, float* dataLeft_cmplx, float* dataRight_cmplx, 
 
 //	struct data_phase phase = {0, 0, 0, 0, -1};
 	float max_norm = MIN_VALUE_THRESHOLD;
-	//static because we need to keep the values in order to compute an average
-	//If average index = 2, we do the average. Else, the motors keep their old value.
 
 	//search for the highest peak of the Left mic
 	for(uint16_t i = MIN_FREQ ; i <= MAX_FREQ ; i++){
