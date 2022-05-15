@@ -36,11 +36,10 @@ typedef enum {
 	BACK_OUTPUT
 } BUFFER_NAME_t;
 
-extern float Left_Phase;
-extern float Right_Phase;
-extern float Front_Phase;
-extern float Back_Phase;
-extern int16_t max_norm_index;
+extern struct data_phase {
+	float left, right, front, back;
+	int16_t max_norm_index;
+} phase;
 
 void processAudioData(int16_t *data, uint16_t num_samples);
 

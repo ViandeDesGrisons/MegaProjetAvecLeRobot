@@ -13,6 +13,8 @@
 #define TURN_SPEED			500
 #define TIME_SLEEP_CONTROL	10
 
+//extern struct data_phase phase;
+
 void control_start(void);
 
 #endif /* CONTROL_SOUND_OBSTACLE_H_ */

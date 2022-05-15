@@ -22,13 +22,9 @@ static float micFront_output[FFT_SIZE];
 static float micBack_output[FFT_SIZE];
 /****************************END STATIC VARIABLES*********************************/
 
-/*****************************GLOBAL VARIABLES************************************/
-float Left_Phase = 0;
-float Right_Phase = 0;
-float Front_Phase = 0;
-float Back_Phase = 0;
-int16_t max_norm_index = -1;
-/***************************END GLOBAL VARIABLES**********************************/
+/****************************STRUCTURE DECLARATION***************************************/
+struct data_phase phase = {0, 0, 0, 0, -1};
+/**************************END STRUCTURE DECLARATION*************************************/
 
 /***************************INTERNAL FUNCTIONS************************************/
 /*	params :
@@ -44,6 +40,7 @@ int16_t max_norm_index = -1;
 
 void find_sound(float* dataLeft, float* dataLeft_cmplx, float* dataRight_cmplx, float* dataFront_cmplx, float* dataBack_cmplx){
 
+//	struct data_phase phase = {0, 0, 0, 0, -1};
 	float max_norm = MIN_VALUE_THRESHOLD;
 	//static because we need to keep the values in order to compute an average
 	//If average index = 2, we do the average. Else, the motors keep their old value.
@@ -52,38 +49,38 @@ void find_sound(float* dataLeft, float* dataLeft_cmplx, float* dataRight_cmplx, 
 	for(uint16_t i = MIN_FREQ ; i <= MAX_FREQ ; i++){
 		if(dataLeft[i] > max_norm){
 			max_norm = dataLeft[i];
-			max_norm_index = i;
+			phase.max_norm_index = i;
 		}
 	}
 
 	//find the real and imaginary part of each mic in order to compute the phase
-	float max_Left_real = dataLeft_cmplx[2*max_norm_index];
-	float max_Left_im = dataLeft_cmplx[2*max_norm_index + 1];
-	float max_Right_real = dataRight_cmplx[2*max_norm_index];
-	float max_Right_im = dataRight_cmplx[2*max_norm_index + 1];
-	float max_Front_real = dataFront_cmplx[2*max_norm_index];
-	float max_Front_im = dataFront_cmplx[2*max_norm_index + 1];
-	float max_Back_real = dataBack_cmplx[2*max_norm_index];
-	float max_Back_im = dataBack_cmplx[2*max_norm_index + 1];
+	float max_Left_real = dataLeft_cmplx[2*phase.max_norm_index];
+	float max_Left_im = dataLeft_cmplx[2*phase.max_norm_index + 1];
+	float max_Right_real = dataRight_cmplx[2*phase.max_norm_index];
+	float max_Right_im = dataRight_cmplx[2*phase.max_norm_index + 1];
+	float max_Front_real = dataFront_cmplx[2*phase.max_norm_index];
+	float max_Front_im = dataFront_cmplx[2*phase.max_norm_index + 1];
+	float max_Back_real = dataBack_cmplx[2*phase.max_norm_index];
+	float max_Back_im = dataBack_cmplx[2*phase.max_norm_index + 1];
 
 	//Compute the phase of the mics to see from where the sound is coming
-	Left_Phase = atan2(max_Left_im, max_Left_real);
-	Right_Phase = atan2(max_Right_im, max_Right_real);
-	Front_Phase = atan2(max_Front_im, max_Front_real);
-	Back_Phase = atan2(max_Back_im, max_Back_real);
+	phase.left = atan2(max_Left_im, max_Left_real);
+	phase.right = atan2(max_Right_im, max_Right_real);
+	phase.front = atan2(max_Front_im, max_Front_real);
+	phase.back = atan2(max_Back_im, max_Back_real);
 
 	//We want to take into account the fact that the phase is modulo 2*pi.
-	if((Right_Phase - Left_Phase) >= MODULO_THRESHOLD){
-		Right_Phase = Right_Phase - 2*PI;
+	if((phase.right - phase.left) >= MODULO_THRESHOLD){
+		phase.right = phase.right - 2*PI;
 	}
-	if((Left_Phase - Right_Phase) >= MODULO_THRESHOLD){
-		Left_Phase = Left_Phase - 2*PI;
+	if((phase.left - phase.right) >= MODULO_THRESHOLD){
+		phase.left = phase.left - 2*PI;
 	}
-	if((Front_Phase - Back_Phase) >= MODULO_THRESHOLD){
-		Front_Phase = Front_Phase - 2*PI;
+	if((phase.front - phase.back) >= MODULO_THRESHOLD){
+		phase.front = phase.front - 2*PI;
 	}
-	if((Back_Phase - Front_Phase) >= MODULO_THRESHOLD){
-		Back_Phase = Back_Phase - 2*PI;
+	if((phase.back - phase.front) >= MODULO_THRESHOLD){
+		phase.back = phase.back - 2*PI;
 	}
 }
 /*************************END INTERNAL FUNCTIONS**********************************/
