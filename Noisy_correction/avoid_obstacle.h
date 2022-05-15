@@ -54,6 +54,5 @@
 uint8_t find_obstacle(void);
 void set_speed_motor(uint8_t speed);
 void avoid_obstacle(void);
-void control_motor_obstacle(void);
 
 #endif /* AVOID_OBSTACLE_H_ */

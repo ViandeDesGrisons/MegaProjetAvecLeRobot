@@ -23,7 +23,7 @@ static float micBack_output[FFT_SIZE];
 /****************************END STATIC VARIABLES*********************************/
 
 /****************************STRUCTURE DECLARATION***************************************/
-struct data_phase phase = {0, 0, 0, 0, -1};
+struct data_phase phase = {CLEAR, CLEAR, CLEAR, CLEAR, INITIAL_MAX_NORM};
 /**************************END STRUCTURE DECLARATION*************************************/
 
 /***************************INTERNAL FUNCTIONS************************************/
@@ -40,7 +40,6 @@ struct data_phase phase = {0, 0, 0, 0, -1};
 
 void find_sound(float* dataLeft, float* dataLeft_cmplx, float* dataRight_cmplx, float* dataFront_cmplx, float* dataBack_cmplx){
 
-//	struct data_phase phase = {0, 0, 0, 0, -1};
 	float max_norm = MIN_VALUE_THRESHOLD;
 
 	//search for the highest peak of the Left mic
@@ -102,10 +101,10 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 	*	1024 samples, then we compute the FFTs.
 	*
 	*/
-	static uint16_t nb_samples = 0;
+	static uint16_t nb_samples = CLEAR;
 
 	//loop to fill the buffers
-	for(uint16_t i = 0 ; i < num_samples ; i+=4){
+	for(uint16_t i = CLEAR ; i < num_samples ; i+=NB_MIC){
 		//construct an array of complex numbers. Put 0 to the imaginary part
 		micRight_cmplx_input[nb_samples] = (float)data[i + MIC_RIGHT];
 		micLeft_cmplx_input[nb_samples] = (float)data[i + MIC_LEFT];
@@ -114,10 +113,10 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 
 		nb_samples++;
 
-		micRight_cmplx_input[nb_samples] = 0;
-		micLeft_cmplx_input[nb_samples] = 0;
-		micBack_cmplx_input[nb_samples] = 0;
-		micFront_cmplx_input[nb_samples] = 0;
+		micRight_cmplx_input[nb_samples] = CLEAR;
+		micLeft_cmplx_input[nb_samples] = CLEAR;
+		micBack_cmplx_input[nb_samples] = CLEAR;
+		micFront_cmplx_input[nb_samples] = CLEAR;
 
 		nb_samples++;
 
@@ -151,7 +150,7 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 		arm_cmplx_mag_f32(micFront_cmplx_input, micFront_output, FFT_SIZE);
 		arm_cmplx_mag_f32(micBack_cmplx_input, micBack_output, FFT_SIZE);
 
-		nb_samples = 0;
+		nb_samples = CLEAR;
 
 		find_sound(micLeft_output, micLeft_cmplx_input, micRight_cmplx_input, micFront_cmplx_input, micBack_cmplx_input);
 	}

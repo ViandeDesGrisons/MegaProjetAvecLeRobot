@@ -1,7 +1,3 @@
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <string.h>
-
 #include <audio/microphone.h>
 #include <audio_processing.h>
 #include <control_sound_obstacle.h>
@@ -10,17 +6,6 @@
 #include "memory_protection.h"
 #include <motors.h>
 #include <sensors/proximity.h>
-
-//#include "ch.h"
-//#include <usbcfg.h>
-//#include <chprintf.h>
-//#include <avoid_obstacle.h>
-//#include <i2c_bus.h>
-//#include <msgbus/messagebus.h>
-//#include <fft.h>
-//#include <communications.h>
-//#include <arm_math.h>
-//#include "leds.h"
 
 #define STACK_CHK_GUARD 0xe2dee396
 
